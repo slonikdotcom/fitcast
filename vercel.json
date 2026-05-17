@@ -1,0 +1,22 @@
+{
+  "$schema": "https://openapi.vercel.sh/vercel.json",
+  "cleanUrls": true,
+  "trailingSlash": false,
+  "rewrites": [
+    { "source": "/dashboard", "destination": "/dashboard.html" },
+    { "source": "/history",   "destination": "/history.html" },
+    { "source": "/profile",   "destination": "/profile.html" },
+    { "source": "/login",     "destination": "/login.html" },
+    { "source": "/register",  "destination": "/register.html" },
+    { "source": "/about",     "destination": "/about.html" },
+    { "source": "/add-workout","destination": "/add-workout.html" }
+  ],
+  "headers": [
+    {
+      "source": "/api/(.*)",
+      "headers": [
+        { "key": "Cache-Control", "value": "no-store, max-age=0" }
+      ]
+    }
+  ]
+}
