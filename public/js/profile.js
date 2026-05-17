@@ -33,6 +33,44 @@
 
     // 3. Аватар (авто-збереження)
     initAvatarUpload(V, U);
+
+    // 4. Реальна статистика з тренувань користувача
+    loadStats();
+  }
+
+  async function loadStats() {
+    const W = window.FitCastWorkouts;
+    if (!W) return;
+
+    const totalEl = document.getElementById('stat-total');
+    const hoursEl = document.getElementById('stat-hours');
+    const weekEl  = document.getElementById('stat-week');
+
+    let workouts;
+    try { workouts = await W.getAll(); }
+    catch (e) {
+      if (totalEl) totalEl.textContent = '0';
+      if (hoursEl) hoursEl.textContent = '0';
+      if (weekEl)  weekEl.textContent  = '0';
+      return;
+    }
+
+    const total = workouts.length;
+    const totalMinutes = workouts.reduce(function (sum, w) { return sum + (w.duration || 0); }, 0);
+    const totalHours = Math.round(totalMinutes / 60);
+
+    // Тренувань за останні 7 днів (включно з сьогодні)
+    const weekAgo = new Date();
+    weekAgo.setHours(0, 0, 0, 0);
+    weekAgo.setDate(weekAgo.getDate() - 6);
+    const weekAgoIso = weekAgo.getFullYear() + '-' +
+                       String(weekAgo.getMonth() + 1).padStart(2, '0') + '-' +
+                       String(weekAgo.getDate()).padStart(2, '0');
+    const weekCount = workouts.filter(function (w) { return w.date >= weekAgoIso; }).length;
+
+    if (totalEl) totalEl.textContent = String(total);
+    if (hoursEl) hoursEl.textContent = String(totalHours);
+    if (weekEl)  weekEl.textContent  = String(weekCount);
   }
 
   function findFormWithField(selector) {
