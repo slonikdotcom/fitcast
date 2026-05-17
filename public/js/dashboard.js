@@ -1,54 +1,46 @@
 /* ============================================================
    FitCast — дашборд
-   Динамічно рендерить картки сьогоднішніх тренувань.
-   Кожна картка — посилання на add-workout.html?id=X (редагування).
+   Лаба 5: контент рендериться на сервері через React SSR
+   (/api/ssr/dashboard), клієнт лише отримує готовий HTML.
    ============================================================ */
 
 (function () {
   document.addEventListener('DOMContentLoaded', init);
 
-  /* Підставити ім'я зі збереженого профілю */
-  function renderGreeting() {
-    const U = window.FitCastUser;
-    const greetingEl = document.getElementById('dashboardGreeting');
-    if (!U || !greetingEl) return;
-    const profile = U.get();
-    greetingEl.textContent = 'Вітаю, ' + profile.name;
+  async function init() {
+    const greetingHost = document.getElementById('dashboardGreeting');
+    const workoutsHost = document.getElementById('workoutsToday');
+
+    // Лоадер (поки чекаємо SSR-відповідь)
+    if (greetingHost) greetingHost.textContent = 'Завантажуємо…';
+    if (workoutsHost) workoutsHost.innerHTML = '<div class="workout-empty">Завантажуємо…</div>';
+
+    try {
+      const resp = await fetch('/api/ssr/dashboard', { credentials: 'same-origin' });
+      if (resp.status === 401) {
+        window.location.href = '/login';
+        return;
+      }
+      if (!resp.ok) throw new Error('SSR-помилка');
+
+      const data = await resp.json();
+
+      // Динамічна тема (вночі — темна, на основі серверного часу)
+      applyTheme(data.theme);
+
+      // Вставляємо серверно-зрендерені фрагменти
+      if (greetingHost) greetingHost.outerHTML = data.greetingHtml;
+      if (workoutsHost) workoutsHost.outerHTML = data.workoutsHtml;
+    } catch (err) {
+      console.error('Dashboard SSR error:', err);
+      if (workoutsHost) {
+        workoutsHost.innerHTML = '<div class="workout-empty">Помилка завантаження. ' +
+                                  '<button onclick="location.reload()">Спробувати ще</button></div>';
+      }
+    }
   }
 
-  function init() {
-    renderGreeting();
-
-    const D = window.FitCastWorkouts;
-    if (!D) {
-      console.error('FitCastWorkouts не завантажено (перевір workouts-data.js)');
-      return;
-    }
-
-    const container = document.getElementById('workoutsToday');
-    if (!container) return;
-
-    const todays = D.getToday();
-
-    if (todays.length === 0) {
-      container.innerHTML = '<div class="workout-empty">Сьогодні тренувань ще не заплановано. ' +
-                            '<a href="add-workout.html">Додати тренування →</a></div>';
-      return;
-    }
-
-    container.innerHTML = ''; // очистити (якщо лишилось)
-    todays.forEach(function (w) {
-      const meta = D.getTypeMeta(w.type);
-      const link = document.createElement('a');
-      link.href = 'add-workout.html?id=' + w.id;
-      link.className = 'workout-card workout-card--link';
-      link.setAttribute('aria-label',
-        'Редагувати тренування: ' + meta.label + ', ' + D.formatTimeRange(w));
-      link.innerHTML =
-        '<span class="workout-card__time">' + D.formatTimeRange(w) + '</span> ' +
-        '<span class="workout-card__type">' + meta.emoji + ' ' + meta.label.toLowerCase() + '</span>' +
-        '<span class="workout-card__hint">Натисни, щоб редагувати →</span>';
-      container.appendChild(link);
-    });
+  function applyTheme(theme) {
+    document.body.setAttribute('data-theme', theme || 'light');
   }
 })();

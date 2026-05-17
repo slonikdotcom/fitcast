@@ -1250,6 +1250,79 @@ footer a:hover {
 }
 
 /* ========================
+   SSR ATTRIBUTES (лаба 5) — динамічна тема за серверним часом
+   ======================== */
+
+body[data-theme="dark"] .noise-bg::before {
+  filter: brightness(0.5);
+}
+
+body[data-theme="dark"] {
+  color-scheme: dark;
+}
+
+body[data-theme="dark"] .dashboard__greeting,
+body[data-theme="dark"] .ssr-greeting__title {
+  color: #e8f0e5;
+}
+
+body[data-theme="dark"] .ssr-greeting__sub,
+body[data-theme="dark"] .dashboard__subtitle {
+  color: #b8c8b2;
+}
+
+/* SSR-компонент привітання */
+.ssr-greeting {
+  display: flex;
+  align-items: center;
+  gap: 24px;
+  margin: 60px auto 32px;
+  max-width: 700px;
+  padding: 0 20px;
+  justify-content: center;
+  flex-wrap: wrap;
+}
+
+.ssr-greeting__avatar {
+  width: 80px;
+  height: 80px;
+  border-radius: 50%;
+  background-color: var(--green-mid);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  color: var(--white);
+  font-size: 2rem;
+  font-weight: 700;
+  overflow: hidden;
+}
+
+.ssr-greeting__avatar--photo { background-color: transparent; }
+
+.ssr-greeting__avatar-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  border-radius: 50%;
+}
+
+.ssr-greeting__text { text-align: center; }
+
+.ssr-greeting__title {
+  font-size: clamp(2rem, 5vw, 3.5rem);
+  font-weight: 300;
+  color: var(--text-dark);
+  margin-bottom: 8px;
+}
+
+.ssr-greeting__sub {
+  font-size: 1rem;
+  color: var(--text-mid);
+  letter-spacing: 0.5px;
+}
+
+/* ========================
    REACT-ВІДЖЕТ ПОГОДИ (лаба 4)
    ======================== */
 

@@ -29,20 +29,25 @@
 
     /* ============================================================
        РЕЖИМ РЕДАГУВАННЯ: якщо в URL є ?id=X — заповнюємо форму
+       (getById тепер async — чекаємо на сервер)
        ============================================================ */
     const editId = getEditIdFromUrl();
-    const isEditMode = editId !== null && window.FitCastWorkouts;
-
-    if (isEditMode) {
-      const workout = window.FitCastWorkouts.getById(editId);
-      if (workout) {
-        prefillForm(workout);
-        switchToEditMode(workout);
-      } else {
-        // ID невалідний — показуємо повідомлення
-        V.showFormMessage(form,
-          'Тренування з id=' + editId + ' не знайдено. Створюємо нове.', 'info');
-      }
+    if (editId !== null && window.FitCastWorkouts) {
+      (async () => {
+        try {
+          const workout = await window.FitCastWorkouts.getById(editId);
+          if (workout) {
+            prefillForm(workout);
+            switchToEditMode(workout);
+          } else {
+            V.showFormMessage(form,
+              'Тренування з id=' + editId + ' не знайдено. Створюємо нове.', 'info');
+          }
+        } catch (e) {
+          V.showFormMessage(form,
+            'Не вдалося завантажити тренування для редагування.', 'error');
+        }
+      })();
     }
 
     function getEditIdFromUrl() {
@@ -226,7 +231,7 @@
     });
 
     // Фінальний слухач — після всіх валідацій вирішує: зберегти чи показати помилку
-    form.addEventListener('workout:validate:done', function (e) {
+    form.addEventListener('workout:validate:done', async function (e) {
       const ctx = e.detail;
       if (ctx.errors.length > 0) {
         V.showFormMessage(form, ctx.errors[0], 'error');
@@ -236,10 +241,18 @@
       const editingId = form.dataset.editId;
       const verb = editingId ? 'оновлено' : 'збережено';
 
-      // Збираємо об'єкт для збереження
+      // Збираємо об'єкт для збереження.
+      // Фото читаємо як data URL (щоб зберегти у БД).
       const photoEl = form.querySelector('#photo');
-      const photoName = (photoEl && photoEl.files && photoEl.files[0])
-                       ? photoEl.files[0].name : null;
+      let photoDataUrl = null;
+      if (photoEl && photoEl.files && photoEl.files[0]) {
+        try {
+          photoDataUrl = await readFileAsDataUrl(photoEl.files[0]);
+        } catch (err) {
+          V.showFormMessage(form, 'Не вдалося прочитати фото', 'error');
+          return;
+        }
+      }
 
       const workoutData = {
         type:        ctx.type,
@@ -248,23 +261,27 @@
         duration:    ctx.duration,
         place:       ctx.place,
         notes:       (notesInput && notesInput.value) || '',
-        photo:       photoName
+        photo:       photoDataUrl
       };
       if (ctx.type === 'other' && ctx.typeCustom) {
         workoutData.typeCustom = ctx.typeCustom;
       }
 
-      // Реальне збереження через localStorage
-      let savedWorkout;
-      if (window.FitCastWorkouts) {
+      const submitBtn = document.getElementById('submitBtn');
+      if (submitBtn) { submitBtn.disabled = true; submitBtn.textContent = 'Зберігаємо…'; }
+
+      try {
         if (editingId) {
-          savedWorkout = window.FitCastWorkouts.update(editingId, workoutData);
+          await window.FitCastWorkouts.update(editingId, workoutData);
         } else {
-          savedWorkout = window.FitCastWorkouts.create(workoutData);
+          await window.FitCastWorkouts.create(workoutData);
         }
+      } catch (err) {
+        V.showFormMessage(form, err.message || ('Помилка ' + verb), 'error');
+        if (submitBtn) { submitBtn.disabled = false; submitBtn.textContent = 'Зберегти тренування'; }
+        return;
       }
 
-      // Повідомлення
       let msg = '✓ Тренування ' + verb + '!';
       if (ctx.warnings.length > 0) {
         msg = '⚠️ ' + ctx.warnings[0] + ' — тренування все одно ' + verb;
@@ -272,13 +289,17 @@
       msg += ' Перенаправлення на історію…';
       V.showFormMessage(form, msg, ctx.warnings.length > 0 ? 'info' : 'success');
 
-      console.log('[FitCast] Тренування ' + verb + ':', savedWorkout);
-
-      // Перенаправлення на історію через 1.2 сек
-      setTimeout(function () {
-        window.location.href = 'history.html';
-      }, 1200);
+      setTimeout(function () { window.location.href = '/history'; }, 1200);
     });
+
+    function readFileAsDataUrl(file) {
+      return new Promise(function (resolve, reject) {
+        const r = new FileReader();
+        r.onload = function (ev) { resolve(ev.target.result); };
+        r.onerror = function () { reject(new Error('FileReader error')); };
+        r.readAsDataURL(file);
+      });
+    }
 
     /* ============================================================
        SUBMIT — диспатчимо ланцюжок CustomEvent

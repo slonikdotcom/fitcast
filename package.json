@@ -4,8 +4,6 @@
   "private": true,
   "description": "FitCast — веб-застосунок для трекінгу тренувань з прогнозом погоди. Курсова робота Подпала Тамара, КМ-32.",
   "scripts": {
-    "dev": "vercel dev",
-    "start": "vercel dev",
     "db:init": "node scripts/init-db.js"
   },
   "engines": {
@@ -22,6 +20,6 @@
   "devDependencies": {
     "dotenv": "^16.4.5",
     "jsdom": "^25.0.1",
-    "vercel": "^39.1.0"
+    "vercel": "^54.1.0"
   }
 }

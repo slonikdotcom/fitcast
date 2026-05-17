@@ -9,7 +9,7 @@
 (function () {
   document.addEventListener('DOMContentLoaded', init);
 
-  function init() {
+  async function init() {
     const mainForm = document.querySelector('.profile-card form');
     if (!mainForm) return;
 
@@ -20,8 +20,14 @@
       return;
     }
 
-    // Завантажуємо профіль і заповнюємо все
-    const profile = U.get();
+    // Завантажуємо профіль із сервера і заповнюємо все
+    let profile;
+    try {
+      profile = await U.get();
+    } catch (e) {
+      console.error('Не вдалося завантажити профіль:', e);
+      return;
+    }
     fillProfileFromData(profile);
 
     // 1. Форма особистих даних
@@ -52,7 +58,7 @@
     const avatarImg = document.getElementById('avatarImg');
     const letterEl  = avatar && avatar.querySelector('.avatar__letter');
 
-    if (letterEl) letterEl.textContent = U.getInitial();
+    if (letterEl) letterEl.textContent = U.getInitial(profile);
     if (profile.avatar && avatar && avatarImg) {
       avatarImg.src = profile.avatar;
       avatar.classList.add('avatar--has-photo');
@@ -62,7 +68,7 @@
     const nameDisplay = document.querySelector('.avatar-info__name');
     const dateDisplay = document.querySelector('.avatar-info__date');
     if (nameDisplay) nameDisplay.textContent = profile.name;
-    if (dateDisplay) dateDisplay.textContent = 'У FitCast з ' + U.formatJoinedDate();
+    if (dateDisplay) dateDisplay.textContent = 'У FitCast з ' + U.formatJoinedDate(profile);
 
     // Особисті дані
     setVal('#name',  profile.name);
@@ -137,8 +143,8 @@
       else V.clearError(confirmPassInput);
     });
 
-    /* SUBMIT — реальне збереження */
-    form.addEventListener('submit', function (e) {
+    /* SUBMIT — реальне збереження на сервер */
+    form.addEventListener('submit', async function (e) {
       e.preventDefault();
       let valid = true;
 
@@ -165,20 +171,22 @@
         return;
       }
 
-      // Реальне збереження
-      U.update({ name: name, email: email, city: city });
-      // Пароль зберігаємо НЕ у відкритому вигляді (у Лабі 5 — хеш на сервері).
-      // Поки що — просто очищаємо поля.
-      newPassInput.value = '';
-      confirmPassInput.value = '';
+      try {
+        const updated = await U.update({ name: name, email: email, city: city });
+        // Поля паролю просто очищаємо — у Лабі 5 окремо зробимо ендпоінт зміни пароля
+        newPassInput.value = '';
+        confirmPassInput.value = '';
 
-      // Оновимо відображення в блоці аватара та літеру
-      const nameDisplay = document.querySelector('.avatar-info__name');
-      const letterEl    = document.querySelector('.avatar__letter');
-      if (nameDisplay) nameDisplay.textContent = name;
-      if (letterEl)    letterEl.textContent    = U.getInitial();
+        // Оновимо відображення в блоці аватара та літеру
+        const nameDisplay = document.querySelector('.avatar-info__name');
+        const letterEl    = document.querySelector('.avatar__letter');
+        if (nameDisplay) nameDisplay.textContent = updated.name;
+        if (letterEl)    letterEl.textContent    = U.getInitial(updated);
 
-      V.showFormMessage(form, '✓ Дані профілю збережено!', 'success');
+        V.showFormMessage(form, '✓ Дані профілю збережено!', 'success');
+      } catch (err) {
+        V.showFormMessage(form, err.message || 'Помилка збереження', 'error');
+      }
     });
   }
 
@@ -203,16 +211,20 @@
       }
     });
 
-    /* SUBMIT — реальне збереження налаштувань погоди */
-    form.addEventListener('submit', function (e) {
+    /* SUBMIT — реальне збереження налаштувань погоди на сервер */
+    form.addEventListener('submit', async function (e) {
       e.preventDefault();
-      U.updateWeatherSettings({
-        tempMin: parseInt(tempMin.value, 10),
-        tempMax: parseInt(tempMax.value, 10),
-        windMax: parseInt(wind.value, 10),
-        rain:    rain.value
-      });
-      V.showFormMessage(form, '✓ Налаштування погоди збережено!', 'success');
+      try {
+        await U.updateWeatherSettings({
+          tempMin: parseInt(tempMin.value, 10),
+          tempMax: parseInt(tempMax.value, 10),
+          windMax: parseInt(wind.value, 10),
+          rain:    rain.value
+        });
+        V.showFormMessage(form, '✓ Налаштування погоди збережено!', 'success');
+      } catch (err) {
+        V.showFormMessage(form, err.message || 'Помилка збереження', 'error');
+      }
     });
 
     function bindRange(input, labelId, suffix) {
@@ -250,11 +262,12 @@
       clearAvatarError();
 
       const reader = new FileReader();
-      reader.onload = function (e) {
+      reader.onload = async function (e) {
         const dataUrl = e.target.result;
-        const saved = U.setAvatar(dataUrl);
+        showAvatarFeedback('Зберігаємо…');
+        const saved = await U.setAvatar(dataUrl);
         if (!saved) {
-          showAvatarError('Не вдалося зберегти (можливо файл завеликий для localStorage). Спробуй фото менше 2 МБ.');
+          showAvatarError('Не вдалося зберегти фото на сервері. Спробуй менший файл.');
           return;
         }
         imgEl.src = dataUrl;
@@ -265,8 +278,9 @@
       reader.readAsDataURL(file);
     });
 
-    removeBtn.addEventListener('click', function () {
-      U.removeAvatar();
+    removeBtn.addEventListener('click', async function () {
+      try { await U.removeAvatar(); }
+      catch (e) { showAvatarError('Не вдалося видалити: ' + e.message); return; }
       input.value = '';
       imgEl.src = '';
       avatar.classList.remove('avatar--has-photo');

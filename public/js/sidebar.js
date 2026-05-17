@@ -30,5 +30,17 @@
         sidebar.classList.remove('open');
       }
     });
+
+    /* --- Подія 4: вихід з акаунту через POST /api/auth/logout --- */
+    const logoutLink = sidebar.querySelector('a[href*="login"]');
+    if (logoutLink && logoutLink.textContent.trim().toLowerCase().includes('вийти')) {
+      logoutLink.addEventListener('click', async function (e) {
+        e.preventDefault();
+        try {
+          await fetch('/api/auth/logout', { method: 'POST' });
+        } catch (_) { /* не критично — все одно перенаправляємо */ }
+        window.location.href = '/login';
+      });
+    }
   });
 })();

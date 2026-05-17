@@ -1,113 +1,110 @@
 /* ============================================================
-   FitCast — дані користувача (профіль)
-   Зараз: localStorage (тимчасово, для демонстрації)
-   У Лабі 5: тут будуть запити до /api/profile на сервер
+   FitCast — клієнт для API профілю (/api/profile)
+   Лаба 5: реальні запити до сервера.
+   API сумісний з версією на localStorage, але методи ASYNC.
    ============================================================ */
 
 (function () {
-  const STORAGE_KEY = 'fitcast.profile';
+  let CACHE = null;
+  let LOADING = null;
 
-  const DEFAULT_PROFILE = {
-    name:        'Тома',
-    email:       'toma@example.com',
-    city:        'Kyiv',
-    joinedDate:  '2026-05-01',     // ISO дата реєстрації
-    avatar:      null,             // data URL фото профілю або null
-    weatherSettings: {
-      tempMin: 10,
-      tempMax: 28,
-      windMax: 10,
-      rain:    'none'              // 'none' | 'light' | 'any'
-    }
-  };
-
-  /* --- Load / Save --- */
-  function load() {
-    try {
-      const raw = localStorage.getItem(STORAGE_KEY);
-      if (raw) {
-        const parsed = JSON.parse(raw);
-        // Мердж з дефолтом — на випадок якщо в збереженому профілі
-        // не вистачає полів (старі версії)
-        return Object.assign({}, DEFAULT_PROFILE, parsed, {
-          weatherSettings: Object.assign({},
-            DEFAULT_PROFILE.weatherSettings,
-            parsed.weatherSettings || {}
-          )
-        });
+  /* --- Серверний формат (snake_case) → клієнтський (camelCase) --- */
+  function fromServer(p) {
+    return {
+      id:        p.id,
+      name:      p.name,
+      email:     p.email,
+      city:      p.city,
+      avatar:    p.avatar,
+      joinedDate: p.joined_date,
+      weatherSettings: {
+        tempMin: p.temp_min,
+        tempMax: p.temp_max,
+        windMax: p.wind_max,
+        rain:    p.rain_preference
       }
-    } catch (e) {
-      console.warn('[FitCast] Не вдалося прочитати профіль:', e);
-    }
-    return Object.assign({}, DEFAULT_PROFILE);
+    };
   }
 
-  function persist(profile) {
+  async function load() {
+    if (CACHE) return CACHE;
+    if (LOADING) return LOADING;
+    LOADING = (async () => {
+      const resp = await fetch('/api/profile', { credentials: 'same-origin' });
+      if (resp.status === 401) {
+        window.location.href = '/login';
+        return null;
+      }
+      if (!resp.ok) throw new Error('Не вдалося завантажити профіль');
+      const data = await resp.json();
+      CACHE = fromServer(data.profile);
+      LOADING = null;
+      return CACHE;
+    })();
+    return LOADING;
+  }
+
+  async function get() {
+    await load();
+    return JSON.parse(JSON.stringify(CACHE));
+  }
+
+  async function update(changes) {
+    const resp = await fetch('/api/profile', {
+      method: 'PUT',
+      credentials: 'same-origin',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(changes)
+    });
+    if (!resp.ok) {
+      const err = await resp.json().catch(() => ({}));
+      throw new Error(err.error || 'Помилка оновлення профілю');
+    }
+    const data = await resp.json();
+    CACHE = fromServer(data.profile);
+    return get();
+  }
+
+  async function updateWeatherSettings(weather) {
+    return update({ weatherSettings: weather });
+  }
+
+  async function setAvatar(dataUrl) {
     try {
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(profile));
+      await update({ avatar: dataUrl });
       return true;
     } catch (e) {
-      // Найчастіша помилка — QuotaExceeded (профіль з великим аватаром)
-      console.error('[FitCast] Не вдалося зберегти профіль:', e);
+      console.warn('[FitCastUser] не вдалося зберегти аватар:', e.message);
       return false;
     }
   }
 
-  let PROFILE = load();
-
-  /* --- API --- */
-
-  function get() {
-    return Object.assign({}, PROFILE, {
-      weatherSettings: Object.assign({}, PROFILE.weatherSettings)
-    });
+  async function removeAvatar() {
+    return update({ avatar: null });
   }
 
-  function update(changes) {
-    PROFILE = Object.assign({}, PROFILE, changes);
-    persist(PROFILE);
-    return get();
-  }
-
-  function updateWeatherSettings(changes) {
-    PROFILE.weatherSettings = Object.assign({}, PROFILE.weatherSettings, changes);
-    persist(PROFILE);
-    return get();
-  }
-
-  function setAvatar(dataUrl) {
-    PROFILE.avatar = dataUrl || null;
-    return persist(PROFILE);
-  }
-
-  function removeAvatar() {
-    PROFILE.avatar = null;
-    persist(PROFILE);
-  }
-
-  /* Дата реєстрації у форматі "травня 2026" */
-  function formatJoinedDate() {
+  /* --- Локальні утиліти --- */
+  function formatJoinedDate(profile) {
     const months = ['січня','лютого','березня','квітня','травня','червня',
                     'липня','серпня','вересня','жовтня','листопада','грудня'];
-    const [y, m] = PROFILE.joinedDate.split('-').map(Number);
-    return `${months[m - 1]} ${y}`;
+    const d = new Date(profile.joinedDate);
+    if (isNaN(d.getTime())) return '';
+    return `${months[d.getMonth()]} ${d.getFullYear()}`;
   }
 
-  /* Перша літера імені для аватара */
-  function getInitial() {
-    return (PROFILE.name || 'X').trim().charAt(0).toUpperCase();
+  function getInitial(profile) {
+    return ((profile && profile.name) || 'X').trim().charAt(0).toUpperCase();
   }
 
-  /* Очистити (для дебагу/виходу) */
-  function reset() {
-    PROFILE = Object.assign({}, DEFAULT_PROFILE);
-    persist(PROFILE);
+  function invalidate() {
+    CACHE = null;
+    LOADING = null;
   }
 
   window.FitCastUser = {
     get, update, updateWeatherSettings,
     setAvatar, removeAvatar,
     formatJoinedDate, getInitial,
-    reset
+    invalidate
   };
 })();
