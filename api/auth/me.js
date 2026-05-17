@@ -1,8 +1,4 @@
-/* ============================================================
-   GET /api/auth/me
-   Повертає поточного користувача (за cookie-сесією) або 401.
-   ============================================================ */
-
+// GET /api/auth/me — повертає поточного юзера або 401.
 const { getUserFromRequest } = require('../_lib/auth');
 
 module.exports = async function handler(req, res) {

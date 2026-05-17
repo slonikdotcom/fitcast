@@ -1,8 +1,4 @@
-/* ============================================================
-   FitCast — JWT + cookie helpers
-   Підпис, верифікація, встановлення/очистка HTTP-only cookie.
-   ============================================================ */
-
+// JWT + cookies + requireAuth для захищених ендпоїнтів.
 const jwt = require('jsonwebtoken');
 const cookie = require('cookie');
 const { queryOne } = require('./db');

@@ -1,21 +1,15 @@
-/* ============================================================
-   FitCast — React-віджет прогнозу погоди
-   Лаба 4: набір компонент, AJAX через fetch, обробка помилок,
-           блокування UI під час запиту, стрімінг при скролі,
-           Geolocation API.
-   ============================================================ */
-
+// React-віджет прогнозу погоди з табами і стрімінгом.
 const { useState, useEffect, useRef, useCallback, useMemo } = React;
 
-/* ============================================================
-   КОНТЕКСТ: глобальні утиліти через window
-   ============================================================ */
+/* React Router v5 (Лаба 6 — переадресація засобами React).
+   UMD-бандл експортує глобал ReactRouterDOM. */
+const { HashRouter, Switch, Route, NavLink, Redirect } = ReactRouterDOM;
+
+// КОНТЕКСТ: глобальні утиліти через window
 const API   = window.FitCastWeatherApi;
 const CFG   = window.FitCastWeatherConfig;
 
-/* ============================================================
-   ROOT — головний компонент віджета
-   ============================================================ */
+// ROOT — головний компонент віджета
 function WeatherWidget() {
   const [city, setCity]         = useState(CFG.DEFAULT_CITY);
   const [data, setData]         = useState(null);
@@ -75,7 +69,6 @@ function WeatherWidget() {
     loadByCity(CFG.DEFAULT_CITY);
   }, [loadByCity]);
 
-  /* --- Стрімінг: підвантажити більше годин --- */
   const loadMoreHours = useCallback(function () {
     setVisibleHours(function (h) {
       if (!data) return h;
@@ -83,39 +76,61 @@ function WeatherWidget() {
     });
   }, [data]);
 
+  const forecastProps = {
+    data: data,
+    visibleHours: visibleHours,
+    onLoadMore: loadMoreHours,
+    userSettings: userSettings
+  };
+
   return (
-    <section className="weather-widget" aria-label="Прогноз погоди для тренувань">
-      <header className="weather-widget__header">
-        <h2 className="section__title" style={{ marginBottom: 8 }}>
-          Сприятливі години для вуличних тренувань
-        </h2>
-        <CitySelector
-          currentCity={city}
-          onSelect={loadByCity}
-          onGeolocate={loadByGeolocation}
-          disabled={loading}
-        />
-      </header>
+    <HashRouter>
+      <section className="weather-widget" aria-label="Прогноз погоди для тренувань">
+        <header className="weather-widget__header">
+          <h2 className="section__title" style={{ marginBottom: 8 }}>
+            Сприятливі години для вуличних тренувань
+          </h2>
+          <CitySelector
+            currentCity={city}
+            onSelect={loadByCity}
+            onGeolocate={loadByGeolocation}
+            disabled={loading}
+          />
+        </header>
 
-      {error && <ErrorBanner message={error} onRetry={() => loadByCity(city)} />}
+        {error && <ErrorBanner message={error} onRetry={() => loadByCity(city)} />}
 
-      {loading && <Loader />}
+        {!error && data && (
+          <nav className="weather-tabs" role="tablist" aria-label="Період прогнозу">
+            <NavLink to="/today"    className="weather-tab" activeClassName="weather-tab--active" role="tab">Сьогодні</NavLink>
+            <NavLink to="/tomorrow" className="weather-tab" activeClassName="weather-tab--active" role="tab">Завтра</NavLink>
+            <NavLink to="/week"     className="weather-tab" activeClassName="weather-tab--active" role="tab">Тиждень</NavLink>
+          </nav>
+        )}
 
-      {!loading && !error && data && (
-        <WeatherForecast
-          data={data}
-          visibleHours={visibleHours}
-          onLoadMore={loadMoreHours}
-          userSettings={userSettings}
-        />
-      )}
-    </section>
+        {loading && <Loader />}
+
+        {!loading && !error && data && (
+          <Switch>
+            <Route path="/today">
+              <WeatherForecast {...forecastProps} dayFilter="today" />
+            </Route>
+            <Route path="/tomorrow">
+              <WeatherForecast {...forecastProps} dayFilter="tomorrow" />
+            </Route>
+            <Route path="/week">
+              <WeatherForecast {...forecastProps} dayFilter="week" />
+            </Route>
+            {/* За замовчуванням — переадресація на «Сьогодні» */}
+            <Redirect to="/today" />
+          </Switch>
+        )}
+      </section>
+    </HashRouter>
   );
 }
 
-/* ============================================================
-   CitySelector — вибір міста (input + кнопки)
-   ============================================================ */
+// CitySelector — вибір міста (input + кнопки)
 function CitySelector(props) {
   const [input, setInput] = useState(props.currentCity);
 
@@ -161,9 +176,7 @@ function CitySelector(props) {
   );
 }
 
-/* ============================================================
-   Loader — заглушка під час запиту
-   ============================================================ */
+// Loader — заглушка під час запиту
 function Loader() {
   return (
     <div className="weather-loader" role="status" aria-live="polite">
@@ -173,9 +186,7 @@ function Loader() {
   );
 }
 
-/* ============================================================
-   ErrorBanner — повідомлення про помилку
-   ============================================================ */
+// ErrorBanner — повідомлення про помилку
 function ErrorBanner(props) {
   return (
     <div className="weather-error" role="alert">
@@ -191,28 +202,46 @@ function ErrorBanner(props) {
   );
 }
 
-/* ============================================================
-   WeatherForecast — горизонтальний список годин зі стрімінгом
-   ============================================================ */
+// WeatherForecast — горизонтальний список годин зі стрімінгом Лаба 6: приймає dayFilter з URL-роутера ('today'/'tomorrow'/'week')
 function WeatherForecast(props) {
   const scrollRef = useRef(null);
   const data = props.data;
+  const dayFilter = props.dayFilter || 'week';
 
-  // Фільтр годин за уподобаннями користувача (з профілю):
+  // Крок 1: фільтр за обраним днем (з React Router).
+  // OWM повертає dt_txt у UTC; для узгодженості порівнюємо теж по UTC-даті.
+  const dayFilteredHours = useMemo(function () {
+    if (dayFilter === 'today') {
+      const t = new Date().toISOString().substring(0, 10);
+      return data.hours.filter(function (h) { return h.date === t; });
+    }
+    if (dayFilter === 'tomorrow') {
+      const tom = new Date(Date.now() + 86400000).toISOString().substring(0, 10);
+      return data.hours.filter(function (h) { return h.date === tom; });
+    }
+    return data.hours; // 'week'
+  }, [data.hours, dayFilter]);
+
+  // Крок 2: фільтр за уподобаннями користувача (з профілю):
   // показуємо тільки слоти у діапазоні [hourStart, hourEnd).
   const settings = props.userSettings;
   const filteredHours = useMemo(function () {
     if (!settings || settings.hourStart === undefined || settings.hourEnd === undefined) {
-      return data.hours;
+      return dayFilteredHours;
     }
-    return data.hours.filter(function (h) {
+    return dayFilteredHours.filter(function (h) {
       const hr = parseInt(String(h.time).substring(0, 2), 10);
       return hr >= settings.hourStart && hr < settings.hourEnd;
     });
-  }, [data.hours, settings]);
+  }, [dayFilteredHours, settings]);
 
-  const visible = filteredHours.slice(0, props.visibleHours);
-  const hasMore = props.visibleHours < filteredHours.length;
+  // Крок 3: стрімінг — тільки для тижневого виду
+  // (сьогодні/завтра — максимум 8 точок, нема куди стрімити)
+  const useStreaming = dayFilter === 'week';
+  const visible = useStreaming
+    ? filteredHours.slice(0, props.visibleHours)
+    : filteredHours;
+  const hasMore = useStreaming && props.visibleHours < filteredHours.length;
 
   // Стрімінг: коли користувач доскролив до правого краю, підвантажуємо
   const handleScroll = useCallback(function () {
@@ -226,6 +255,23 @@ function WeatherForecast(props) {
   const goodCount = useMemo(function () {
     return visible.filter(h => API.isGoodForOutdoor(h, settings)).length;
   }, [visible, settings]);
+
+  // Якщо у виду «Сьогодні» вже нема годин (наприклад, час > hourEnd) —
+  // покажемо коротку підказку замість порожнього скролу.
+  if (visible.length === 0) {
+    return (
+      <div className="weather-forecast">
+        <div className="weather-forecast__meta">
+          <span className="weather-forecast__city">📍 {data.city}, {data.country}</span>
+        </div>
+        <div className="weather-empty">
+          {dayFilter === 'today'
+            ? 'На сьогодні годин у вибраному діапазоні вже немає. Глянь «Завтра» або «Тиждень».'
+            : 'У цьому періоді нема даних. Перевір налаштування годин у профілі.'}
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="weather-forecast">
@@ -262,16 +308,14 @@ function WeatherForecast(props) {
 
       {hasMore && (
         <div className="weather-forecast__hint">
-          Гортай вправо — підвантажиться більше прогнозу ({data.hours.length - props.visibleHours} годин лишилось)
+          Гортай вправо — підвантажиться більше прогнозу ({filteredHours.length - props.visibleHours} годин лишилось)
         </div>
       )}
     </div>
   );
 }
 
-/* ============================================================
-   WeatherSlot — одна година прогнозу
-   ============================================================ */
+// WeatherSlot — одна година прогнозу
 function WeatherSlot(props) {
   const h = props.hour;
   const classes = ['weather-slot'];
@@ -322,7 +366,6 @@ function WeatherSlot(props) {
   );
 }
 
-/* --- Хелпер: "Пн 12.05" якщо дата не сьогодні --- */
 function formatDateLabel(isoDate) {
   const today = new Date();
   const todayIso = today.toISOString().substring(0, 10);
@@ -336,12 +379,7 @@ function formatDateLabel(isoDate) {
   return `${dayName} ${dd}.${mm}`;
 }
 
-/* ============================================================
-   MOUNT — підключаємо React до сторінки
-   ⚠️ Babel-standalone виконує цей код ВСЕРЕДИНІ DOMContentLoaded-
-   обробника. Тому слухач 'DOMContentLoaded' тут вже не спрацює —
-   треба монтувати безпосередньо, попередньо перевіривши readyState.
-   ============================================================ */
+// MOUNT — підключаємо React до сторінки ⚠️ Babel-standalone виконує цей код ВСЕРЕДИНІ DOMContentLoaded- обробника. Тому слухач 'DOMContentLoaded' тут вже не спрацює — треба монтувати безпосередньо, попередньо перевіривши readyState.
 function mountWeatherWidget() {
   const mountNode = document.getElementById('weatherWidgetRoot');
   if (!mountNode) return;

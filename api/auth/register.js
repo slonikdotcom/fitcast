@@ -1,10 +1,4 @@
-/* ============================================================
-   POST /api/auth/register
-   Body: { name, email, password }
-   Створює користувача, хешує пароль через bcrypt,
-   встановлює JWT-cookie сесії. Повертає user info.
-   ============================================================ */
-
+// POST /api/auth/register — створює юзера, видає JWT-cookie.
 const bcrypt = require('bcryptjs');
 const { query, queryOne } = require('../_lib/db');
 const { signToken, setAuthCookie } = require('../_lib/auth');

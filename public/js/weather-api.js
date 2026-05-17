@@ -1,8 +1,4 @@
-/* ============================================================
-   FitCast — обгортка над OpenWeatherMap API
-   Лаба 4: AJAX через fetch, обробка таймаутів та помилок.
-   ============================================================ */
-
+// Клієнт /api/weather (проксі OWM), таймаут, мок-фоллбек.
 (function () {
   const CFG = window.FitCastWeatherConfig;
   const MOCK = window.FitCastWeatherMock;
@@ -12,7 +8,6 @@
     return;
   }
 
-  /* --- fetch з таймаутом --- */
   function fetchWithTimeout(url, timeout) {
     return new Promise(function (resolve, reject) {
       const controller = new AbortController();
@@ -37,7 +32,6 @@
     });
   }
 
-  /* --- Конвертація відповіді в простіший формат --- */
   function normalizeForecast(rawData) {
     return {
       city: rawData.city.name,
@@ -91,8 +85,6 @@
     return true;
   }
 
-  /* --- Основні методи API --- */
-
   async function fetchByCity(city) {
     return fetchForecast({ city: city });
   }
@@ -143,7 +135,6 @@
     return u.toString();
   }
 
-  /* --- Geolocation API --- */
   function getCurrentCoords(timeout) {
     timeout = timeout || 10000;
     return new Promise(function (resolve, reject) {

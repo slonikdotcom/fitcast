@@ -1,11 +1,4 @@
-/* ============================================================
-   FitCast — сторінка профілю
-   - Завантаження даних із FitCastUser на старті
-   - Збереження особистих даних при submit
-   - Збереження налаштувань погоди при submit
-   - Авто-збереження аватара одразу при виборі
-   ============================================================ */
-
+// Сторінка профілю: дані, налаштування погоди, аватар.
 (function () {
   document.addEventListener('DOMContentLoaded', init);
 
@@ -47,9 +40,6 @@
     return el ? el.closest('form') : null;
   }
 
-  /* ============================================================
-     ЗАПОВНЕННЯ ПОЛІВ ПРИ ЗАВАНТАЖЕННІ
-     ============================================================ */
   function fillProfileFromData(profile) {
     const U = window.FitCastUser;
 
@@ -99,9 +89,6 @@
     if (el) el.textContent = text;
   }
 
-  /* ============================================================
-     ФОРМА ОСОБИСТИХ ДАНИХ
-     ============================================================ */
   function initPersonalForm(form, V, U) {
     const nameInput        = form.querySelector('#name');
     const emailInput       = form.querySelector('#email');
@@ -193,9 +180,6 @@
     });
   }
 
-  /* ============================================================
-     ФОРМА НАЛАШТУВАНЬ ПОГОДИ
-     ============================================================ */
   function initWeatherForm(form, V, U) {
     const tempMin   = form.querySelector('#temp-min');
     const tempMax   = form.querySelector('#temp-max');
@@ -261,9 +245,6 @@
     }
   }
 
-  /* ============================================================
-     АВАТАР — авто-збереження одразу при виборі
-     ============================================================ */
   function initAvatarUpload(V, U) {
     const input    = document.getElementById('avatar-upload');
     const avatar   = document.getElementById('userAvatar');

@@ -1,24 +1,16 @@
-/* ============================================================
-   FitCast — спільні утиліти валідації
-   Лаба 3: JavaScript. Маніпуляції DOM та події.
-   ============================================================ */
-
-/* --- Константи --- */
+// Спільні утиліти валідації форм.
 const EMAIL_REGEX = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
 const NAME_REGEX  = /^[A-Za-zА-Яа-яЁёІіЇїЄєҐґ'\- ]{2,30}$/;
 const MIN_PASSWORD_LENGTH = 8;
 
-/* --- Перевірка email --- */
 function isValidEmail(email) {
   return EMAIL_REGEX.test(String(email).trim());
 }
 
-/* --- Перевірка імені --- */
 function isValidName(name) {
   return NAME_REGEX.test(String(name).trim());
 }
 
-/* --- Перевірка пароля: повертає 'weak' | 'medium' | 'strong' --- */
 function getPasswordStrength(password) {
   if (password.length < MIN_PASSWORD_LENGTH) return 'weak';
   const hasUpper  = /[A-Z]/.test(password);
@@ -31,7 +23,6 @@ function getPasswordStrength(password) {
   return 'weak';
 }
 
-/* --- Показати помилку біля поля --- */
 function showError(input, message) {
   if (!input) return;
   let errorEl = input.parentElement.querySelector('.form__error');
@@ -48,7 +39,6 @@ function showError(input, message) {
   input.setAttribute('aria-invalid', 'true');
 }
 
-/* --- Прибрати помилку, показати "успіх" --- */
 function clearError(input) {
   if (!input) return;
   const errorEl = input.parentElement.querySelector('.form__error');
@@ -61,7 +51,6 @@ function clearError(input) {
   input.removeAttribute('aria-invalid');
 }
 
-/* --- Скинути всі стани (валідне/невалідне) --- */
 function resetField(input) {
   if (!input) return;
   const errorEl = input.parentElement.querySelector('.form__error');
@@ -73,7 +62,6 @@ function resetField(input) {
   input.removeAttribute('aria-invalid');
 }
 
-/* --- Загальне повідомлення на рівні форми --- */
 function showFormMessage(form, message, type) {
   // type: 'success' | 'error' | 'info'
   let msgEl = form.querySelector('.form__message');
@@ -92,7 +80,6 @@ function hideFormMessage(form) {
   if (msgEl) msgEl.classList.remove('form__message--visible');
 }
 
-/* --- Експорт у глобальний namespace (щоб не возитись з модулями) --- */
 window.FitCastValidation = {
   EMAIL_REGEX,
   NAME_REGEX,

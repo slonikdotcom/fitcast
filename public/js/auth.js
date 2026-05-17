@@ -1,9 +1,4 @@
-/* ============================================================
-   FitCast — клієнтська логіка login/register
-   Тепер посилає реальні POST-запити на /api/auth/*
-   Замість захардкоджених облікових даних — справжній сервер з БД.
-   ============================================================ */
-
+// Клієнтська логіка форм login та register.
 (function () {
   document.addEventListener('DOMContentLoaded', init);
 
@@ -14,9 +9,6 @@
     initRegisterForm(V);
   }
 
-  /* ============================================================
-     LOGIN
-     ============================================================ */
   function initLoginForm(V) {
     const form = document.querySelector('.auth-card form');
     const titleEl = document.querySelector('.auth-card__title');
@@ -86,9 +78,6 @@
     });
   }
 
-  /* ============================================================
-     REGISTER
-     ============================================================ */
   function initRegisterForm(V) {
     const form = document.querySelector('.auth-card form');
     const titleEl = document.querySelector('.auth-card__title');

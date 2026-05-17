@@ -1,11 +1,4 @@
-/* ============================================================
-   GET /api/ssr/history
-   Серверно-рендерить картки тренувань для сторінки історії.
-   Підтримує query-параметри для фільтрації (передаються з клієнта):
-     ?type=run&from=2026-05-01&to=2026-05-17&place=outdoor&minDuration=30
-   Повертає JSON: { theme, listHtml, total, filtered }
-   ============================================================ */
-
+// GET /api/ssr/history — SSR-картки історії з фільтрами.
 const { query } = require('../_lib/db');
 const { requireAuth } = require('../_lib/auth');
 const { React, renderToHtml, getThemeByTime } = require('../_lib/ssr');
@@ -13,7 +6,6 @@ const { TYPE_META, PLACE_META } = require('../_lib/components/WorkoutListSSR');
 
 const h = React.createElement;
 
-/* --- Повний акордеон-картка для сторінки історії --- */
 function WorkoutFullCard({ w }) {
   const type  = TYPE_META[w.type] || TYPE_META.other;
   const place = PLACE_META[w.place] || PLACE_META.other;
@@ -59,8 +51,17 @@ function WorkoutFullCard({ w }) {
       ),
       h('div', { className: 'form__group' },
         h('label', { className: 'form__label' }, 'Фото з тренування'),
-        h('input', { type: 'file', accept: 'image/*' }),
-        w.photo ? h('div', { className: 'photo-saved' }, 'Збережено раніше') : null
+        h('div', { className: 'photo-input' + (w.photo ? ' photo-input--has-image' : '') },
+          h('input', { type: 'file', accept: 'image/*', className: 'photo-input__file' }),
+          h('div', { className: 'photo-input__display', role: 'button', tabIndex: 0 },
+            h('img', { className: 'photo-input__img', src: w.photo || undefined, alt: 'Фото тренування' }),
+            h('div', { className: 'photo-input__placeholder' },
+              h('span', { className: 'photo-input__camera-icon', 'aria-hidden': 'true' }, '📷'),
+              h('span', null, 'Додати фото')
+            )
+          ),
+          h('button', { type: 'button', className: 'photo-input__remove', 'aria-label': 'Прибрати фото' }, '✕')
+        )
       ),
       h('div', { className: 'wcard__actions' },
         h('a', { href: '/add-workout?id=' + w.id, className: 'wcard__edit-link' }, '✏️ Редагувати у формі'),

@@ -1,8 +1,4 @@
-/* ============================================================
-   FitCast — React SSR хелпер
-   Рендерить React-компоненти у HTML-рядок через ReactDOMServer.
-   ============================================================ */
-
+// React SSR helper: renderToStaticMarkup + getThemeByTime.
 const React = require('react');
 const ReactDOMServer = require('react-dom/server');
 

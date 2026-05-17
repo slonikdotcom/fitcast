@@ -1,8 +1,4 @@
-/* ============================================================
-   POST /api/auth/logout
-   Очищує cookie сесії.
-   ============================================================ */
-
+// POST /api/auth/logout — очищує cookie сесії.
 const { clearAuthCookie } = require('../_lib/auth');
 
 module.exports = async function handler(req, res) {

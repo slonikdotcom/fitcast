@@ -1,9 +1,4 @@
-/* ============================================================
-   POST /api/auth/login
-   Body: { email, password }
-   Перевіряє пароль через bcrypt.compare, встановлює сесію.
-   ============================================================ */
-
+// POST /api/auth/login — перевіряє пароль, видає JWT-cookie.
 const bcrypt = require('bcryptjs');
 const { queryOne } = require('../_lib/db');
 const { signToken, setAuthCookie } = require('../_lib/auth');

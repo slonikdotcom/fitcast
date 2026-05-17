@@ -1,115 +1,139 @@
-/* ============================================================
-   FitCast — спільна логіка прев'ю фото
-   Викликає FitCastPhotoPreview.attach(inputElement) для будь-якого
-   <input type="file"> — додає прев'ю, валідацію, кнопку "прибрати".
-   ============================================================ */
+// Фото-прев’ю (квадрат) та лайтбокс для тренувань.
+// Структура у HTML/SSR: <div class="photo-input">…</div>
+// Підвантажується автоматично для всіх контейнерів з класом .photo-input.
 
 (function () {
   const MAX_FILE_SIZE = 5 * 1024 * 1024; // 5 МБ
 
-  function attach(input) {
-    if (!input || input.dataset.previewAttached === '1') return;
-    input.dataset.previewAttached = '1';
+  function attach(container) {
+    if (!container || container.dataset.previewAttached === '1') return;
+    container.dataset.previewAttached = '1';
 
-    const wrapper = input.parentElement;
-    const preview = document.createElement('div');
-    preview.className = 'photo-preview';
-    preview.hidden = true;
-    preview.innerHTML =
-      '<img class="photo-preview__img" alt="Прев\'ю фото" />' +
-      '<div class="photo-preview__info">' +
-        '<div class="photo-preview__name"></div>' +
-        '<div class="photo-preview__size"></div>' +
-      '</div>' +
-      '<button type="button" class="photo-preview__remove" title="Прибрати фото" aria-label="Прибрати фото">✕</button>';
-    wrapper.appendChild(preview);
+    const input    = container.querySelector('.photo-input__file');
+    const display  = container.querySelector('.photo-input__display');
+    const img      = container.querySelector('.photo-input__img');
+    const removeBtn= container.querySelector('.photo-input__remove');
+    if (!input || !display || !img) return;
 
-    const imgEl     = preview.querySelector('.photo-preview__img');
-    const nameEl    = preview.querySelector('.photo-preview__name');
-    const sizeEl    = preview.querySelector('.photo-preview__size');
-    const removeBtn = preview.querySelector('.photo-preview__remove');
+    // Якщо у img вже є src (SSR підставив збережене фото) — позначити контейнер
+    // та лишити стійкий маркер для history.js (щоб знати, чи фото прийшло з БД).
+    if (img.getAttribute('src')) {
+      container.classList.add('photo-input--has-image');
+      container.dataset.hadInitialPhoto = '1';
+    }
 
-    /* Подія: вибір файлу */
+    // Клік по дисплею: відкрити лайтбокс або викликати file picker
+    display.addEventListener('click', function () {
+      if (container.classList.contains('photo-input--has-image')) {
+        openLightbox(img.src);
+      } else {
+        input.click();
+      }
+    });
+
+    // Подія: вибір файлу
     input.addEventListener('change', function () {
       const file = input.files && input.files[0];
-      if (!file) {
-        preview.hidden = true;
-        return;
-      }
-      // Валідація типу
+      if (!file) return;
       if (!file.type.startsWith('image/')) {
-        showError(wrapper, 'Можна завантажувати тільки зображення (JPG, PNG, WebP)');
-        resetInput();
+        showError(container, 'Можна завантажувати тільки зображення (JPG, PNG, WebP)');
+        input.value = '';
         return;
       }
-      // Валідація розміру
       if (file.size > MAX_FILE_SIZE) {
-        showError(wrapper, 'Файл занадто великий (макс ' + formatSize(MAX_FILE_SIZE) + ')');
-        resetInput();
+        showError(container, 'Файл занадто великий (макс ' + formatSize(MAX_FILE_SIZE) + ')');
+        input.value = '';
         return;
       }
-      clearError(wrapper);
+      clearError(container);
 
       const reader = new FileReader();
       reader.onload = function (e) {
-        imgEl.src = e.target.result;
-        nameEl.textContent = file.name;
-        sizeEl.textContent = formatSize(file.size);
-        preview.hidden = false;
-        // Диспатчимо подію, щоб інший код міг реагувати
+        img.src = e.target.result;
+        container.classList.add('photo-input--has-image');
         input.dispatchEvent(new CustomEvent('photo:loaded', {
           detail: { file: file, dataUrl: e.target.result }
         }));
       };
-      reader.onerror = function () {
-        showError(wrapper, 'Не вдалося прочитати файл');
-      };
+      reader.onerror = function () { showError(container, 'Не вдалося прочитати файл'); };
       reader.readAsDataURL(file);
     });
 
-    /* Подія: прибрати фото */
-    removeBtn.addEventListener('click', function () {
-      resetInput();
-      input.dispatchEvent(new CustomEvent('photo:removed'));
-    });
-
-    function resetInput() {
-      input.value = '';
-      preview.hidden = true;
-      imgEl.src = '';
+    // Прибрати фото
+    if (removeBtn) {
+      removeBtn.addEventListener('click', function (e) {
+        e.stopPropagation();
+        input.value = '';
+        img.removeAttribute('src');
+        container.classList.remove('photo-input--has-image');
+        input.dispatchEvent(new CustomEvent('photo:removed'));
+      });
     }
   }
 
-  /* --- Хелпери --- */
-  function showError(wrapper, msg) {
-    let err = wrapper.querySelector('.file-error');
+  // Лайтбокс — глобальний оверлей, створюється один раз і перевикористовується
+  let lightbox;
+  function ensureLightbox() {
+    if (lightbox) return lightbox;
+    lightbox = document.createElement('div');
+    lightbox.className = 'photo-lightbox';
+    lightbox.setAttribute('role', 'dialog');
+    lightbox.setAttribute('aria-label', 'Перегляд фото');
+    lightbox.innerHTML =
+      '<button class="photo-lightbox__close" aria-label="Закрити">✕</button>' +
+      '<img class="photo-lightbox__img" alt="" />';
+    document.body.appendChild(lightbox);
+
+    lightbox.addEventListener('click', function (e) {
+      if (e.target === lightbox || e.target.classList.contains('photo-lightbox__close')) {
+        closeLightbox();
+      }
+    });
+    document.addEventListener('keydown', function (e) {
+      if (e.key === 'Escape' && lightbox.classList.contains('photo-lightbox--open')) {
+        closeLightbox();
+      }
+    });
+    return lightbox;
+  }
+  function openLightbox(src) {
+    const box = ensureLightbox();
+    box.querySelector('.photo-lightbox__img').src = src;
+    box.classList.add('photo-lightbox--open');
+    document.body.style.overflow = 'hidden';
+  }
+  function closeLightbox() {
+    if (!lightbox) return;
+    lightbox.classList.remove('photo-lightbox--open');
+    document.body.style.overflow = '';
+  }
+
+  // Допоміжні
+  function showError(container, msg) {
+    let err = container.parentElement.querySelector('.file-error');
     if (!err) {
       err = document.createElement('div');
       err.className = 'file-error';
       err.setAttribute('role', 'alert');
-      wrapper.appendChild(err);
+      container.parentElement.appendChild(err);
     }
     err.textContent = msg;
   }
-
-  function clearError(wrapper) {
-    const err = wrapper.querySelector('.file-error');
+  function clearError(container) {
+    const err = container.parentElement.querySelector('.file-error');
     if (err) err.remove();
   }
-
   function formatSize(bytes) {
     if (bytes < 1024) return bytes + ' B';
     if (bytes < 1024 * 1024) return (bytes / 1024).toFixed(1) + ' КБ';
     return (bytes / (1024 * 1024)).toFixed(2) + ' МБ';
   }
 
-  /* Автоматичне підключення до всіх input[type=file] на сторінці
-     ОКРІМ тих, що мають data-no-preview="1" (обробляються власним кодом). */
   function attachAll() {
-    document.querySelectorAll('input[type="file"][accept*="image"]:not([data-no-preview])').forEach(attach);
+    document.querySelectorAll('.photo-input:not([data-preview-attached])').forEach(attach);
   }
 
   document.addEventListener('DOMContentLoaded', attachAll);
 
-  window.FitCastPhotoPreview = { attach: attach, attachAll: attachAll };
+  window.FitCastPhotoPreview = { attach: attach, attachAll: attachAll, openLightbox: openLightbox };
 })();

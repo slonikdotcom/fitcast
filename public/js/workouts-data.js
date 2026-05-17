@@ -1,15 +1,7 @@
-/* ============================================================
-   FitCast — клієнт для API тренувань (/api/workouts)
-   Лаба 5: реальні запити до сервера + кеш у пам'яті.
-
-   API сумісне зі старою версією (localStorage), але всі методи
-   тепер ASYNC: треба await getAll(), await create(...), тощо.
-   ============================================================ */
-
+// Клієнт /api/workouts з кешем у памʼяті.
 (function () {
   const TODAY = todayIso();
 
-  /* --- Метадані типів та місць (не залежать від сервера) --- */
   const TYPE_META = {
     run:   { emoji: '🏃', label: 'Біг' },
     gym:   { emoji: '🏋️', label: 'Зал' },
@@ -26,11 +18,9 @@
     other:   { label: 'Інше',   badge: 'indoor' }
   };
 
-  /* --- Кеш у пам'яті (синхронізується з сервером) --- */
   let CACHE = null;       // масив workouts або null якщо ще не завантажено
   let LOADING = null;     // Promise завантаження (для дедуплікації паралельних викликів)
 
-  /* --- Перетворення snake_case з БД у camelCase для UI --- */
   function fromServer(w) {
     return {
       id:         w.id,
@@ -47,7 +37,7 @@
   }
 
   function toServer(data) {
-    return {
+    const out = {
       type:        data.type,
       type_custom: data.typeCustom || null,
       date:        data.date,
@@ -55,14 +45,14 @@
       duration:    data.duration,
       place:       data.place,
       notes:       data.notes || null,
-      mood:        data.mood || null,
-      photo:       data.photo || null
+      mood:        data.mood || null
     };
+    // photo: undefined → не передаємо (зберегти попереднє при PUT);
+    //       null/string → передаємо явно (очистити або оновити).
+    if (data.photo !== undefined) out.photo = data.photo;
+    return out;
   }
 
-  /* ============================================================
-     READ — асинхронні
-     ============================================================ */
   async function getAll() {
     if (CACHE) return CACHE.slice();
     if (LOADING) return (await LOADING).slice();
@@ -94,9 +84,6 @@
               .sort((a, b) => a.timeStart.localeCompare(b.timeStart));
   }
 
-  /* ============================================================
-     WRITE — кеш оновлюється оптимістично, далі ping сервер
-     ============================================================ */
   async function create(data) {
     const resp = await fetch('/api/workouts', {
       method: 'POST',
@@ -147,15 +134,11 @@
     return true;
   }
 
-  /* --- Скинути кеш (для логауту чи примусового перезавантаження) --- */
   function invalidate() {
     CACHE = null;
     LOADING = null;
   }
 
-  /* ============================================================
-     УТИЛІТИ ФОРМАТУВАННЯ (синхронні, без серверу)
-     ============================================================ */
   function calcTimeEnd(timeStart, durationMin) {
     const [h, m] = timeStart.split(':').map(Number);
     const totalMin = h * 60 + m + durationMin;

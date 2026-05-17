@@ -1,10 +1,4 @@
-/* ============================================================
-   /api/workouts/[id]
-   GET    — одне тренування
-   PUT    — оновити
-   DELETE — видалити
-   ============================================================ */
-
+// /api/workouts/[id] — GET, PUT, DELETE.
 const { query, queryOne } = require('../_lib/db');
 const { requireAuth } = require('../_lib/auth');
 const V = require('../_lib/validation');

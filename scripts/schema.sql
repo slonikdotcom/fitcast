@@ -1,7 +1,4 @@
--- ============================================================
--- FitCast — схема Postgres
--- Виконується скриптом scripts/init-db.js (npm run db:init)
--- ============================================================
+-- Схема Postgres для FitCast. Виконується через npm run db:init.
 
 CREATE TABLE IF NOT EXISTS users (
   id              SERIAL PRIMARY KEY,
@@ -45,9 +42,7 @@ CREATE TABLE IF NOT EXISTS workouts (
 CREATE INDEX IF NOT EXISTS idx_workouts_user_date
   ON workouts (user_id, date DESC, time_start);
 
--- ============================================================
 -- Тригер для автоматичного оновлення updated_at
--- ============================================================
 CREATE OR REPLACE FUNCTION set_updated_at()
 RETURNS TRIGGER AS $$
 BEGIN

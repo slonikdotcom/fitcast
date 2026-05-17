@@ -1,9 +1,4 @@
-/* ============================================================
-   /api/workouts
-   GET  — список тренувань поточного користувача
-   POST — створити нове тренування
-   ============================================================ */
-
+// /api/workouts — GET список, POST створення.
 const { query } = require('../_lib/db');
 const { requireAuth } = require('../_lib/auth');
 const V = require('../_lib/validation');

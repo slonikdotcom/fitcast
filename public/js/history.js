@@ -1,10 +1,4 @@
-/* ============================================================
-   FitCast — сторінка історії тренувань
-   Лаба 5: список карток рендериться React-ом НА СЕРВЕРІ
-   через /api/ssr/history. Клієнт відповідає за інтерактивність:
-   акордеон, фільтри (повторний SSR-запит), save/delete.
-   ============================================================ */
-
+// Історія: SSR-список, фільтри, акордеон, save/delete.
 (function () {
   document.addEventListener('DOMContentLoaded', init);
 
@@ -17,9 +11,6 @@
     await updateStatsTable();
   }
 
-  /* ============================================================
-     SSR-завантаження + рендер
-     ============================================================ */
   async function loadAndRender(filters) {
     const container = document.getElementById('workoutList');
     if (!container) return;
@@ -77,9 +68,6 @@
     }
   }
 
-  /* ============================================================
-     АКОРДЕОН — event delegation
-     ============================================================ */
   function initAccordion() {
     document.addEventListener('click', function (e) {
       const header = e.target.closest('.wcard__header');
@@ -91,9 +79,6 @@
     });
   }
 
-  /* ============================================================
-     MOOD-КНОПКИ
-     ============================================================ */
   function initMoodButtons() {
     document.addEventListener('click', function (e) {
       const btn = e.target.closest('.mood-btn');
@@ -105,9 +90,6 @@
     });
   }
 
-  /* ============================================================
-     ФІЛЬТРИ — submit перепитує SSR з параметрами
-     ============================================================ */
   function initFilters() {
     const form = document.querySelector('.filters');
     if (!form) return;
@@ -135,9 +117,6 @@
     });
   }
 
-  /* ============================================================
-     SAVE / DELETE
-     ============================================================ */
   function initSaveButtons() {
     document.addEventListener('click', async function (e) {
       const btn = e.target.closest('button[data-action]');
@@ -156,13 +135,20 @@
     const mood   = moodEl ? moodEl.textContent.trim() : null;
     const notes  = (card.querySelector('textarea') || {}).value || '';
     const fileEl = card.querySelector('input[type="file"]');
+    const photoContainer = card.querySelector('.photo-input');
     const hasNewFile = fileEl && fileEl.files && fileEl.files[0];
+    const hasImage = photoContainer && photoContainer.classList.contains('photo-input--has-image');
+    const hadInitialPhoto = photoContainer && photoContainer.dataset.hadInitialPhoto === '1';
 
     let changes = { mood: mood, notes: notes };
     if (hasNewFile) {
       try { changes.photo = await readFileAsDataUrl(fileEl.files[0]); }
       catch { alert('Не вдалося прочитати фото'); return; }
+    } else if (hadInitialPhoto && !hasImage) {
+      // Фото було у БД, користувач натиснув ✕ — очищуємо
+      changes.photo = null;
     }
+    // Інакше — photo не передаємо, бекенд лишить попереднє значення
 
     const origText = btn.textContent;
     btn.textContent = 'Зберігаємо…';
@@ -199,9 +185,6 @@
     }
   }
 
-  /* ============================================================
-     ЗВЕДЕНА ТАБЛИЦЯ (рахується клієнтом по FitCastWorkouts.getAll)
-     ============================================================ */
   async function updateStatsTable() {
     const D = window.FitCastWorkouts;
     if (!D) return;

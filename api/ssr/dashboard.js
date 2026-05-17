@@ -1,12 +1,4 @@
-/* ============================================================
-   GET /api/ssr/dashboard
-   Серверно-рендерить React-фрагменти для дашборду:
-     - привітання з ім'ям з БД (cookie сесії)
-     - картки сьогоднішніх тренувань
-     - тема (dark / light) залежно від серверного часу
-   Повертає JSON: { theme, greetingHtml, workoutsHtml, todayCount }
-   ============================================================ */
-
+// GET /api/ssr/dashboard — SSR-фрагменти для дашборду.
 const { query } = require('../_lib/db');
 const { requireAuth } = require('../_lib/auth');
 const { React, renderToHtml, getThemeByTime } = require('../_lib/ssr');

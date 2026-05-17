@@ -999,62 +999,151 @@ textarea {
   line-height: 1.5;
 }
 
-/* Прев'ю фото */
-.photo-preview {
+/* Фото-прев'ю: квадратний контейнер */
+.photo-input {
+  position: relative;
+  display: inline-block;
+  margin-top: 8px;
+}
+
+.photo-input__file {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  opacity: 0;
+  pointer-events: none;
+}
+
+.photo-input__display {
+  width: 160px;
+  height: 160px;
+  border-radius: 16px;
+  background-color: var(--green-pale);
+  border: 2px dashed var(--green-light);
+  overflow: hidden;
+  cursor: pointer;
   display: flex;
   align-items: center;
-  gap: 12px;
-  padding: 10px 12px;
-  background-color: var(--green-pale);
-  border-radius: 12px;
-  margin-top: 8px;
-  border: 1px solid var(--green-light);
+  justify-content: center;
+  position: relative;
+  transition: border-color 0.18s, background-color 0.18s, transform 0.15s;
 }
 
-.photo-preview__img {
-  width: 56px;
-  height: 56px;
+.photo-input__display:hover {
+  border-color: var(--green-mid);
+  background-color: rgba(255,255,255,0.6);
+  transform: translateY(-1px);
+}
+
+.photo-input__display:focus-visible {
+  outline: 3px solid var(--green-mid);
+  outline-offset: 2px;
+}
+
+.photo-input__img {
+  display: none;
+  width: 100%;
+  height: 100%;
   object-fit: cover;
-  border-radius: 8px;
-  flex-shrink: 0;
 }
 
-.photo-preview__info {
-  flex: 1;
-  min-width: 0;
-}
-
-.photo-preview__name {
-  font-size: 0.88rem;
+.photo-input__placeholder {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  color: var(--green-dark);
+  font-size: 0.82rem;
   font-weight: 600;
-  color: var(--text-dark);
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
+  letter-spacing: 0.3px;
+  text-align: center;
+  pointer-events: none;
 }
 
-.photo-preview__size {
-  font-size: 0.75rem;
-  color: var(--text-light);
-  margin-top: 2px;
+.photo-input__camera-icon {
+  font-size: 2.2rem;
+  line-height: 1;
 }
 
-.photo-preview__remove {
+.photo-input__remove {
+  display: none;
+  position: absolute;
+  top: -8px;
+  right: -8px;
   width: 28px;
   height: 28px;
   border-radius: 50%;
-  border: none;
-  background-color: var(--white);
-  color: var(--text-mid);
-  font-size: 0.85rem;
-  cursor: pointer;
-  flex-shrink: 0;
-  transition: background-color 0.15s, color 0.15s;
-}
-
-.photo-preview__remove:hover {
+  border: 2px solid var(--white);
   background-color: #c64a4a;
   color: var(--white);
+  font-size: 0.78rem;
+  font-weight: 700;
+  cursor: pointer;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.18);
+  transition: background-color 0.15s, transform 0.15s;
+}
+
+.photo-input__remove:hover {
+  background-color: #a23a3a;
+  transform: scale(1.08);
+}
+
+/* Стан «є фото»: прибираємо рамку-пунктир і placeholder, показуємо фото і ✕ */
+.photo-input--has-image .photo-input__display {
+  border-style: solid;
+  border-color: var(--green-light);
+  background-color: var(--white);
+}
+.photo-input--has-image .photo-input__placeholder { display: none; }
+.photo-input--has-image .photo-input__img         { display: block; }
+.photo-input--has-image .photo-input__remove      { display: flex; }
+
+/* Лайтбокс: оверлей з повним фото */
+.photo-lightbox {
+  position: fixed;
+  inset: 0;
+  background-color: rgba(0,0,0,0.85);
+  display: none;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+  z-index: 9999;
+  cursor: zoom-out;
+}
+
+.photo-lightbox--open { display: flex; }
+
+.photo-lightbox__img {
+  max-width: 90vw;
+  max-height: 90vh;
+  border-radius: 12px;
+  box-shadow: 0 12px 48px rgba(0,0,0,0.5);
+  cursor: default;
+}
+
+.photo-lightbox__close {
+  position: absolute;
+  top: 18px;
+  right: 18px;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  border: none;
+  background-color: rgba(255,255,255,0.18);
+  color: var(--white);
+  font-size: 1rem;
+  font-weight: 700;
+  cursor: pointer;
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  transition: background-color 0.15s, transform 0.15s;
+}
+
+.photo-lightbox__close:hover {
+  background-color: rgba(255,255,255,0.32);
+  transform: scale(1.08);
 }
 
 /* Помилка завантаження файлу */
@@ -1129,14 +1218,6 @@ textarea {
 
 .form__btn--danger:hover {
   background-color: #a23a3a !important;
-}
-
-/* Підпис "Збережено раніше: фото.jpg" */
-.photo-saved {
-  font-size: 0.78rem;
-  color: var(--text-light);
-  margin-top: 4px;
-  font-style: italic;
 }
 
 /* Анімація видалення картки */
@@ -1404,6 +1485,58 @@ body[data-theme="dark"] .dashboard__subtitle {
 
 .city-selector__btn--geo:hover:not(:disabled) {
   background-color: var(--green-dark);
+}
+
+/* --- Таби періоду (React Router, Лаба 6) --- */
+.weather-tabs {
+  display: flex;
+  justify-content: center;
+  gap: 6px;
+  margin: 0 auto 20px;
+  padding: 4px;
+  background-color: rgba(255,255,255,0.55);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  border-radius: var(--radius);
+  border: 1px solid var(--green-light);
+  max-width: 420px;
+}
+
+.weather-tab {
+  flex: 1;
+  text-align: center;
+  padding: 8px 16px;
+  border-radius: calc(var(--radius) - 4px);
+  color: var(--text-mid);
+  font-family: var(--font-main);
+  font-size: 0.9rem;
+  font-weight: 600;
+  text-decoration: none;
+  cursor: pointer;
+  transition: background-color 0.18s, color 0.18s;
+}
+
+.weather-tab:hover {
+  color: var(--green-dark);
+  background-color: rgba(255,255,255,0.55);
+}
+
+.weather-tab--active,
+.weather-tab--active:hover {
+  background-color: var(--green-dark);
+  color: var(--white);
+  box-shadow: 0 2px 8px rgba(46,66,40,0.18);
+}
+
+/* --- Підказка коли у виді «Сьогодні» нема годин --- */
+.weather-empty {
+  text-align: center;
+  padding: 32px 20px;
+  color: var(--text-mid);
+  font-size: 0.95rem;
+  background-color: rgba(255,255,255,0.55);
+  border-radius: var(--radius);
+  border: 1px dashed var(--green-light);
 }
 
 /* --- Лоадер --- */

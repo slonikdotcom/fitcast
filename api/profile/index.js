@@ -1,9 +1,4 @@
-/* ============================================================
-   /api/profile
-   GET — повертає профіль поточного користувача
-   PUT — оновити name/email/city/weather settings/avatar
-   ============================================================ */
-
+// /api/profile — GET, PUT профілю та налаштувань погоди.
 const { query } = require('../_lib/db');
 const { requireAuth } = require('../_lib/auth');
 const V = require('../_lib/validation');

@@ -1,8 +1,4 @@
-/* ============================================================
-   FitCast — спільна логіка бічної панелі (sidebar)
-   Лаба 3: винесено з інлайнового JS, єдиний скрипт на всі приватні сторінки.
-   ============================================================ */
-
+// Бічна панель і logout.
 (function () {
   // Чекаємо, доки DOM повністю завантажиться
   document.addEventListener('DOMContentLoaded', function () {
@@ -11,27 +7,23 @@
 
     if (!sidebar || !burger) return; // сторінка без sidebar (наприклад, лендінг)
 
-    /* --- Подія 1: клік по burger-кнопці --- */
     burger.addEventListener('click', function (e) {
       e.stopPropagation();
       sidebar.classList.toggle('open');
     });
 
-    /* --- Подія 2: клік поза sidebar — закрити його --- */
     document.addEventListener('click', function (e) {
       if (!sidebar.contains(e.target) && !burger.contains(e.target)) {
         sidebar.classList.remove('open');
       }
     });
 
-    /* --- Подія 3: натискання Esc на клавіатурі --- */
     document.addEventListener('keydown', function (e) {
       if (e.key === 'Escape' && sidebar.classList.contains('open')) {
         sidebar.classList.remove('open');
       }
     });
 
-    /* --- Подія 4: вихід з акаунту через POST /api/auth/logout --- */
     const logoutLink = sidebar.querySelector('a[href*="login"]');
     if (logoutLink && logoutLink.textContent.trim().toLowerCase().includes('вийти')) {
       logoutLink.addEventListener('click', async function (e) {

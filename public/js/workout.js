@@ -1,10 +1,4 @@
-/* ============================================================
-   FitCast — валідація форми додавання тренування
-   Лаба 3: ОБОВ'ЯЗКОВЕ — валідація + 2+ події (blur, submit, change)
-   Лаба 3: БОНУС — різні дії на одну подію через систему подій
-              (CustomEvent workout:validate:{type}), без if-else.
-   ============================================================ */
-
+// Валідація і збереження форми додавання/редагування тренування.
 (function () {
   document.addEventListener('DOMContentLoaded', init);
 
@@ -27,10 +21,6 @@
     const placeCustom   = form.querySelector('#place-custom');
     const notesInput    = form.querySelector('#notes');
 
-    /* ============================================================
-       РЕЖИМ РЕДАГУВАННЯ: якщо в URL є ?id=X — заповнюємо форму
-       (getById тепер async — чекаємо на сервер)
-       ============================================================ */
     const editId = getEditIdFromUrl();
     if (editId !== null && window.FitCastWorkouts) {
       (async () => {
@@ -85,6 +75,16 @@
       durationInput.value = w.duration;
       placeSelect.value = w.place;
       if (notesInput) notesInput.value = w.notes || '';
+
+      // Підставляємо збережене фото у photo-input
+      if (w.photo) {
+        const photoContainer = form.querySelector('.photo-input');
+        const photoImg = photoContainer && photoContainer.querySelector('.photo-input__img');
+        if (photoContainer && photoImg) {
+          photoImg.src = w.photo;
+          photoContainer.classList.add('photo-input--has-image');
+        }
+      }
     }
 
     function switchToEditMode(w) {
@@ -106,10 +106,6 @@
       return d + '.' + m + '.' + y;
     }
 
-    /* ============================================================
-       ОБРОБКА "ІНШЕ" для select (винесено з інлайнового JS)
-       Подія: change
-       ============================================================ */
     typeSelect.addEventListener('change', function () {
       toggleCustomInput(typeSelect, typeCustom);
     });
@@ -129,10 +125,6 @@
         V.resetField(customInput);
       }
     }
-
-    /* ============================================================
-       ВАЛІДАЦІЯ ОКРЕМИХ ПОЛІВ — подія blur
-       ============================================================ */
 
     durationInput.addEventListener('blur', function () {
       const v = parseInt(durationInput.value, 10);
@@ -164,15 +156,6 @@
       if (!timeInput.value) { V.resetField(timeInput); return; }
       V.clearError(timeInput);
     });
-
-    /* ============================================================
-       БОНУС: РІЗНІ ВАЛІДАТОРИ ДЛЯ РІЗНИХ ТИПІВ ТРЕНУВАНЬ
-       Реалізовано через CustomEvent — НЕ через if-else у submit.
-       Кожен тип має свою власну функцію-слухач, зареєстровану
-       на формі через addEventListener('workout:validate:{type}', ...).
-       На submit ми емітимо СПЕЦИФІЧНУ подію за назвою типу — і
-       спрацьовує саме потрібний обробник.
-       ============================================================ */
 
     // Універсальні правила, що працюють завжди (загальний слухач)
     form.addEventListener('workout:validate:any', function (e) {
@@ -258,16 +241,25 @@
       const verb = editingId ? 'оновлено' : 'збережено';
 
       // Збираємо об'єкт для збереження.
-      // Фото читаємо як data URL (щоб зберегти у БД).
       const photoEl = form.querySelector('#photo');
-      let photoDataUrl = null;
-      if (photoEl && photoEl.files && photoEl.files[0]) {
+      const photoContainer = form.querySelector('.photo-input');
+      const hasImage = photoContainer && photoContainer.classList.contains('photo-input--has-image');
+      const hasNewFile = photoEl && photoEl.files && photoEl.files[0];
+
+      let photoValue;
+      if (hasNewFile) {
         try {
-          photoDataUrl = await readFileAsDataUrl(photoEl.files[0]);
+          photoValue = await readFileAsDataUrl(photoEl.files[0]);
         } catch (err) {
           V.showFormMessage(form, 'Не вдалося прочитати фото', 'error');
           return;
         }
+      } else if (editingId && hasImage) {
+        // У режимі редагування фото вже з БД і користувач його не міняв —
+        // не передаємо поле, щоб бекенд лишив попереднє значення.
+        photoValue = undefined;
+      } else {
+        photoValue = null;
       }
 
       const workoutData = {
@@ -276,9 +268,9 @@
         timeStart:   ctx.time,
         duration:    ctx.duration,
         place:       ctx.place,
-        notes:       (notesInput && notesInput.value) || '',
-        photo:       photoDataUrl
+        notes:       (notesInput && notesInput.value) || ''
       };
+      if (photoValue !== undefined) workoutData.photo = photoValue;
       if (ctx.type === 'other' && ctx.typeCustom) {
         workoutData.typeCustom = ctx.typeCustom;
       }
@@ -317,10 +309,6 @@
       });
     }
 
-    /* ============================================================
-       SUBMIT — диспатчимо ланцюжок CustomEvent
-       Сам submit НЕ містить if-else для вибору валідатора.
-       ============================================================ */
     form.addEventListener('submit', function (e) {
       e.preventDefault();
       V.hideFormMessage(form);
