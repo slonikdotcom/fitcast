@@ -1,64 +1,59 @@
 # FitCast
 
-Веб-застосунок для трекінгу тренувань з урахуванням погодних умов.
-Курсова робота: Подпала Тамара, КМ-32.
+**Веб-застосунок для трекінгу тренувань з урахуванням погодних умов.**
+
+Production: [fitcast-eight.vercel.app](https://fitcast-eight.vercel.app)
+Курсова робота: Подпала Тамара, КМ-32
+
+FitCast — це особистий простір для планування і логування тренувань з
+вбудованим аналізом прогнозу погоди. Застосунок автоматично виділяє години,
+що є найсприятливішими для занять на вулиці — за температурою, вітром і
+опадами — і зберігає історію усіх занять з нотатками та фото.
+
+## Можливості
+
+- Реєстрація і авторизація з безпечним зберіганням паролів (bcrypt + JWT в HTTP-only cookies)
+- Логування тренувань: тип, час, тривалість, локація, нотатки, фото
+- Дашборд з розкладом на сьогодні і персональним привітанням (server-side rendered)
+- Інтерактивний React-віджет прогнозу погоди з табами «Сьогодні / Завтра / Тиждень»
+- Автоматичне визначення сприятливих годин на основі індивідуальних порогів користувача
+- Історія тренувань з фільтрами, сортуванням і зведеною статистикою
+- Профіль з налаштуваннями погоди (діапазон температур, вітру, годин активності) і аватаром
+- Лайтбокс для перегляду фото тренувань
+- Адаптивний дизайн, темна/світла тема за серверним часом доби
 
 ## Стек
 
-- **Frontend:** Vanilla JS + React (через CDN+Babel) + CSS
-- **Backend:** Node.js serverless-функції на Vercel
-- **DB:** PostgreSQL (Neon)
-- **Auth:** bcrypt + JWT в HTTP-only cookies
-- **External API:** OpenWeatherMap (прогноз погоди)
+- **Frontend:** Vanilla JS + React 18 (через UMD CDN та Babel-standalone), React Router 5, CSS з Flexbox і Grid
+- **Backend:** Node.js serverless functions на (все через Vercel)
+- **БД:** PostgreSQL на Neon
+- **Auth:** bcryptjs (10 раундів) + JWT в HTTP-only cookies, TTL 7 днів
+- **Зовнішнє API:** OpenWeatherMap
 
 ## Структура
 
 ```
 fitcast/
-├── api/                    # Serverless-функції Vercel
-│   ├── _lib/               # Хелпери (db, auth, ssr) — не endpoint'и
-│   ├── auth/               # /api/auth/register, /login, /logout, /me
-│   ├── workouts/           # CRUD тренувань
-│   ├── profile/            # Профіль і аватар
-│   └── ssr/                # React SSR-фрагменти
-├── public/                 # Статичні файли (HTML, CSS, JS)
-│   ├── *.html
-│   ├── style.css
-│   └── js/
-├── scripts/                # CLI-скрипти (міграції БД тощо)
+├── api/                          # Serverless-функції Vercel
+│   ├── _lib/
+│   │   ├── auth.js               # JWT + cookies + requireAuth
+│   │   ├── db.js                 # Postgres pool (Neon)
+│   │   ├── ssr.js                # React renderToStaticMarkup helper
+│   │   ├── validation.js         # Серверна валідація
+│   │   └── components/           # SSR React-компоненти
+│   ├── auth/                     # register / login / logout / me
+│   ├── workouts/                 # CRUD тренувань (index.js + [id].js)
+│   ├── profile/                  # Профіль і налаштування погоди
+│   ├── ssr/                      # SSR-фрагменти (dashboard, history)
+│   └── weather.js                # Проксі до OpenWeatherMap (ховає API-ключ)
+├── public/                       # Статика
+│   ├── *.html                    # 8 сторінок (лендинг, auth, дашборд тощо)
+│   ├── style.css                 # Усі стилі
+│   └── js/                       # Клієнтський JS і JSX-віджет погоди
+├── scripts/
+│   ├── schema.sql                # Postgres-схема (users, workouts, тригери, індекси)
+│   └── init-db.js                # CLI: npm run db:init
 ├── package.json
-├── vercel.json
-└── .env.local              # Локальні секрети (НЕ комітимо)
+├── vercel.json                   # Clean URLs + rewrites + cache headers
+└── .env.local                    # Локальні секрети (у .gitignore)
 ```
-
-## Локальна розробка
-
-1. Встанови залежності:
-   ```bash
-   npm install
-   ```
-
-2. Скопіюй `.env.example` у `.env.local` та заповни:
-   ```bash
-   cp .env.example .env.local
-   ```
-
-3. Ініціалізуй БД (створює таблиці в Neon Postgres):
-   ```bash
-   npm run db:init
-   ```
-
-4. Запусти dev-сервер:
-   ```bash
-   npm run dev
-   ```
-
-Сервер запуститься на `http://localhost:3000`.
-
-## Deploy на Vercel
-
-1. Запушай проект у GitHub
-2. На vercel.com → Add New → Project → імпортуй репозиторій
-3. У Settings → Environment Variables додай ті самі змінні, що в `.env.local`,
-   але з **POOLED** connection string для `DATABASE_URL`
-4. Deploy
