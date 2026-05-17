@@ -15,8 +15,14 @@ CREATE TABLE IF NOT EXISTS users (
   temp_min        INTEGER NOT NULL DEFAULT 10,
   temp_max        INTEGER NOT NULL DEFAULT 28,
   wind_max        INTEGER NOT NULL DEFAULT 10,
-  rain_preference TEXT    NOT NULL DEFAULT 'none'    -- 'none' | 'light' | 'any'
+  rain_preference TEXT    NOT NULL DEFAULT 'none',   -- 'none' | 'light' | 'any'
+  hour_start      INTEGER NOT NULL DEFAULT 6,        -- з якої години тренуватись (0–23)
+  hour_end        INTEGER NOT NULL DEFAULT 22        -- до якої години (0–24)
 );
+
+-- Якщо таблиця вже існує — додати нові колонки (idempotent)
+ALTER TABLE users ADD COLUMN IF NOT EXISTS hour_start INTEGER NOT NULL DEFAULT 6;
+ALTER TABLE users ADD COLUMN IF NOT EXISTS hour_end   INTEGER NOT NULL DEFAULT 22;
 
 CREATE INDEX IF NOT EXISTS idx_users_email ON users (LOWER(email));
 

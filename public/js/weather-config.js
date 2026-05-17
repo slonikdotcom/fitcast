@@ -21,8 +21,8 @@
     UNITS: 'metric',
     LANG: 'uk',
 
-    // Таймаут запиту (мс)
-    TIMEOUT: 8000,
+    // Таймаут запиту (мс) — 15 сек на випадок cold start Vercel
+    TIMEOUT: 15000,
 
     // За замовчуванням
     DEFAULT_CITY: 'Kyiv',

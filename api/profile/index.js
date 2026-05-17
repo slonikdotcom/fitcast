@@ -61,6 +61,16 @@ async function update(req, res, user) {
     if (!V.isRainPref(ws.rain)) return res.status(400).json({ error: 'Невірне налаштування опадів' });
     sets.push(`rain_preference = $${idx++}`); params.push(ws.rain);
   }
+  if (ws.hourStart !== undefined) {
+    const h = parseInt(ws.hourStart, 10);
+    if (!Number.isFinite(h) || h < 0 || h > 23) return res.status(400).json({ error: 'Година початку: 0–23' });
+    sets.push(`hour_start = $${idx++}`); params.push(h);
+  }
+  if (ws.hourEnd !== undefined) {
+    const h = parseInt(ws.hourEnd, 10);
+    if (!Number.isFinite(h) || h < 1 || h > 24) return res.status(400).json({ error: 'Година кінця: 1–24' });
+    sets.push(`hour_end = $${idx++}`); params.push(h);
+  }
 
   if (sets.length === 0) {
     return res.status(400).json({ error: 'Нема полів для оновлення' });
@@ -71,7 +81,8 @@ async function update(req, res, user) {
     const rows = await query(
       `UPDATE users SET ${sets.join(', ')} WHERE id = $${idx}
        RETURNING id, name, email, city, avatar, joined_date,
-                 temp_min, temp_max, wind_max, rain_preference`,
+                 temp_min, temp_max, wind_max, rain_preference,
+                 hour_start, hour_end`,
       params
     );
     return res.status(200).json({ profile: rows[0] });

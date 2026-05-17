@@ -22,7 +22,8 @@ module.exports = async function handler(req, res) {
   try {
     const user = await queryOne(
       `SELECT id, name, email, password_hash, city, avatar, joined_date,
-              temp_min, temp_max, wind_max, rain_preference
+              temp_min, temp_max, wind_max, rain_preference,
+              hour_start, hour_end
        FROM users WHERE LOWER(email) = LOWER($1)`,
       [email.trim()]
     );

@@ -325,6 +325,18 @@
               </select>
             </div>
 
+            <div class="range-group">
+              <label class="form__label" for="hour-start">З якої години готова тренуватись</label>
+              <input type="range" id="hour-start" name="hour_start" min="0" max="23" value="6" />
+              <div class="range-value" id="hour-start-val">06:00</div>
+            </div>
+
+            <div class="range-group">
+              <label class="form__label" for="hour-end">До якої години готова тренуватись</label>
+              <input type="range" id="hour-end" name="hour_end" min="1" max="24" value="22" />
+              <div class="range-value" id="hour-end-val">22:00</div>
+            </div>
+
           </div>
 
           <button type="submit" class="form__btn" style="margin-top: 8px;">Зберегти налаштування</button>

@@ -47,7 +47,8 @@ module.exports = async function handler(req, res) {
       `INSERT INTO users (name, email, password_hash)
        VALUES ($1, $2, $3)
        RETURNING id, name, email, city, avatar, joined_date,
-                 temp_min, temp_max, wind_max, rain_preference`,
+                 temp_min, temp_max, wind_max, rain_preference,
+                 hour_start, hour_end`,
       [name.trim(), email.trim().toLowerCase(), passwordHash]
     );
     const user = rows[0];

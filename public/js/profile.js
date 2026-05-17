@@ -81,10 +81,13 @@
     setVal('#temp-max', w.tempMax);
     setVal('#wind-max', w.windMax);
     setVal('#rain',     w.rain);
-    // Підписи коло range (бо oninput був прибраний з HTML)
+    setVal('#hour-start', w.hourStart);
+    setVal('#hour-end',   w.hourEnd);
     setLabel('temp-min-val', (w.tempMin || 10) + '°C');
     setLabel('temp-max-val', (w.tempMax || 28) + '°C');
     setLabel('wind-val',     (w.windMax || 10) + ' м/с');
+    setLabel('hour-start-val', String(w.hourStart || 6).padStart(2,'0') + ':00');
+    setLabel('hour-end-val',   String(w.hourEnd   || 22).padStart(2,'0') + ':00');
   }
 
   function setVal(sel, value) {
@@ -194,14 +197,27 @@
      ФОРМА НАЛАШТУВАНЬ ПОГОДИ
      ============================================================ */
   function initWeatherForm(form, V, U) {
-    const tempMin = form.querySelector('#temp-min');
-    const tempMax = form.querySelector('#temp-max');
-    const wind    = form.querySelector('#wind-max');
-    const rain    = form.querySelector('#rain');
+    const tempMin   = form.querySelector('#temp-min');
+    const tempMax   = form.querySelector('#temp-max');
+    const wind      = form.querySelector('#wind-max');
+    const rain      = form.querySelector('#rain');
+    const hourStart = form.querySelector('#hour-start');
+    const hourEnd   = form.querySelector('#hour-end');
 
     bindRange(tempMin, 'temp-min-val', '°C');
     bindRange(tempMax, 'temp-max-val', '°C');
     bindRange(wind,    'wind-val',     ' м/с');
+    bindHourRange(hourStart, 'hour-start-val');
+    bindHourRange(hourEnd,   'hour-end-val');
+
+    // hour_start не може бути >= hour_end
+    hourStart.addEventListener('input', function () {
+      if (parseInt(hourStart.value, 10) >= parseInt(hourEnd.value, 10)) {
+        hourEnd.value = parseInt(hourStart.value, 10) + 1;
+        const lbl = document.getElementById('hour-end-val');
+        if (lbl) lbl.textContent = String(hourEnd.value).padStart(2,'0') + ':00';
+      }
+    });
 
     tempMin.addEventListener('input', function () {
       if (parseInt(tempMin.value, 10) >= parseInt(tempMax.value, 10)) {
@@ -216,10 +232,12 @@
       e.preventDefault();
       try {
         await U.updateWeatherSettings({
-          tempMin: parseInt(tempMin.value, 10),
-          tempMax: parseInt(tempMax.value, 10),
-          windMax: parseInt(wind.value, 10),
-          rain:    rain.value
+          tempMin:   parseInt(tempMin.value, 10),
+          tempMax:   parseInt(tempMax.value, 10),
+          windMax:   parseInt(wind.value, 10),
+          rain:      rain.value,
+          hourStart: parseInt(hourStart.value, 10),
+          hourEnd:   parseInt(hourEnd.value, 10)
         });
         V.showFormMessage(form, '✓ Налаштування погоди збережено!', 'success');
       } catch (err) {
@@ -232,6 +250,13 @@
       if (!input || !label) return;
       input.addEventListener('input', function () {
         label.textContent = input.value + suffix;
+      });
+    }
+    function bindHourRange(input, labelId) {
+      const label = document.getElementById(labelId);
+      if (!input || !label) return;
+      input.addEventListener('input', function () {
+        label.textContent = String(input.value).padStart(2,'0') + ':00';
       });
     }
   }

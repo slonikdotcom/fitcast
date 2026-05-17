@@ -18,20 +18,35 @@ const CFG   = window.FitCastWeatherConfig;
    ============================================================ */
 function WeatherWidget() {
   const [city, setCity]         = useState(CFG.DEFAULT_CITY);
-  const [data, setData]         = useState(null);   // { city, country, hours: [] }
-  const [loading, setLoading]   = useState(false);  // блокує UI
+  const [data, setData]         = useState(null);
+  const [loading, setLoading]   = useState(false);
   const [error, setError]       = useState(null);
-  const [visibleHours, setVisibleHours] = useState(CFG.INITIAL_HOURS); // стрімінг
+  const [visibleHours, setVisibleHours] = useState(CFG.INITIAL_HOURS);
+  // Налаштування користувача з профілю — щоб віджет враховував індивідуальні пороги
+  const [userSettings, setUserSettings] = useState(null);
 
-  /* --- Запит за містом --- */
+  /* Завантажуємо профіль користувача один раз — щоб взяти його weatherSettings
+     (пороги температури, вітру, толерантність до опадів) */
+  useEffect(function () {
+    if (!window.FitCastUser) return;
+    window.FitCastUser.get()
+      .then(function (profile) {
+        if (profile && profile.weatherSettings) {
+          setUserSettings(profile.weatherSettings);
+          if (profile.city) setCity(profile.city);
+        }
+      })
+      .catch(function () { /* не критично — лишимо дефолти */ });
+  }, []);
+
   const loadByCity = useCallback(async function (cityName) {
     setLoading(true);
     setError(null);
-    setVisibleHours(CFG.INITIAL_HOURS); // скинути стрімінг
+    setVisibleHours(CFG.INITIAL_HOURS);
     try {
       const result = await API.fetchByCity(cityName);
       setData(result);
-      setCity(result.city); // OWM може повернути нормалізовану назву
+      setCity(result.city);
     } catch (e) {
       setError(e.message);
       setData(null);
@@ -40,7 +55,6 @@ function WeatherWidget() {
     }
   }, []);
 
-  /* --- Запит за геолокацією --- */
   const loadByGeolocation = useCallback(async function () {
     setLoading(true);
     setError(null);
@@ -57,7 +71,6 @@ function WeatherWidget() {
     }
   }, []);
 
-  /* --- Початкове завантаження --- */
   useEffect(function () {
     loadByCity(CFG.DEFAULT_CITY);
   }, [loadByCity]);
@@ -93,6 +106,7 @@ function WeatherWidget() {
           data={data}
           visibleHours={visibleHours}
           onLoadMore={loadMoreHours}
+          userSettings={userSettings}
         />
       )}
     </section>
@@ -183,8 +197,22 @@ function ErrorBanner(props) {
 function WeatherForecast(props) {
   const scrollRef = useRef(null);
   const data = props.data;
-  const visible = data.hours.slice(0, props.visibleHours);
-  const hasMore = props.visibleHours < data.hours.length;
+
+  // Фільтр годин за уподобаннями користувача (з профілю):
+  // показуємо тільки слоти у діапазоні [hourStart, hourEnd).
+  const settings = props.userSettings;
+  const filteredHours = useMemo(function () {
+    if (!settings || settings.hourStart === undefined || settings.hourEnd === undefined) {
+      return data.hours;
+    }
+    return data.hours.filter(function (h) {
+      const hr = parseInt(String(h.time).substring(0, 2), 10);
+      return hr >= settings.hourStart && hr < settings.hourEnd;
+    });
+  }, [data.hours, settings]);
+
+  const visible = filteredHours.slice(0, props.visibleHours);
+  const hasMore = props.visibleHours < filteredHours.length;
 
   // Стрімінг: коли користувач доскролив до правого краю, підвантажуємо
   const handleScroll = useCallback(function () {
@@ -194,10 +222,10 @@ function WeatherForecast(props) {
     if (nearEnd) props.onLoadMore();
   }, [hasMore, props.onLoadMore]);
 
-  // Підрахунок сприятливих годин у видимому списку
+  // Підрахунок сприятливих годин з урахуванням індивідуальних порогів користувача
   const goodCount = useMemo(function () {
-    return visible.filter(API.isGoodForOutdoor).length;
-  }, [visible]);
+    return visible.filter(h => API.isGoodForOutdoor(h, settings)).length;
+  }, [visible, settings]);
 
   return (
     <div className="weather-forecast">
@@ -217,7 +245,7 @@ function WeatherForecast(props) {
           <WeatherSlot
             key={hour.dt}
             hour={hour}
-            isGood={API.isGoodForOutdoor(hour)}
+            isGood={API.isGoodForOutdoor(hour, settings)}
           />
         ))}
         {hasMore && (
@@ -249,11 +277,26 @@ function WeatherSlot(props) {
   const classes = ['weather-slot'];
   if (props.isGood) classes.push('weather-slot--good');
 
-  // Дата у форматі "Пн 12.05" якщо це не сьогодні
   const dateLabel = formatDateLabel(h.date);
 
+  // Якщо дощ сильніший за 1.5 мм/3год — підміняємо опис на "сильний дощ"
+  // (OWM завжди пише "легкий/помірний дощ", це збиває з пантелику)
+  const desc = (h.weatherMain === 'Rain' && h.rain > 1.5)
+    ? 'сильний дощ'
+    : h.description;
+
+  // Якщо година сприятлива — обертаємо у <a> на add-workout з прехвідповіддю
+  const Tag = props.isGood ? 'a' : 'div';
+  const tagProps = props.isGood
+    ? {
+        href: `/add-workout?date=${encodeURIComponent(h.date)}&time=${encodeURIComponent(h.time)}`,
+        className: classes.join(' ') + ' weather-slot--clickable',
+        title: 'Натисни щоб додати тренування на цю годину'
+      }
+    : { className: classes.join(' ') };
+
   return (
-    <div className={classes.join(' ')}>
+    <Tag {...tagProps}>
       {dateLabel && <div className="weather-slot__date">{dateLabel}</div>}
       <div className="weather-slot__time">
         {h.time}{props.isGood && ' ✓'}
@@ -261,18 +304,21 @@ function WeatherSlot(props) {
       <img
         className="weather-slot__icon"
         src={`https://openweathermap.org/img/wn/${h.icon}@2x.png`}
-        alt={h.description}
+        alt={desc}
         width="50"
         height="50"
         loading="lazy"
       />
       <div className="weather-slot__temp">{h.temp}°C</div>
-      <div className="weather-slot__desc">{h.description}</div>
+      <div className="weather-slot__desc">{desc}</div>
       <div className="weather-slot__wind">💨 {h.wind} м/с</div>
       {h.rain > 0 && (
         <div className="weather-slot__rain">💧 {h.rain.toFixed(1)} мм</div>
       )}
-    </div>
+      {props.isGood && (
+        <div className="weather-slot__add-hint">+ тренування</div>
+      )}
+    </Tag>
   );
 }
 

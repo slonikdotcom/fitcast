@@ -18,10 +18,12 @@
       avatar:    p.avatar,
       joinedDate: p.joined_date,
       weatherSettings: {
-        tempMin: p.temp_min,
-        tempMax: p.temp_max,
-        windMax: p.wind_max,
-        rain:    p.rain_preference
+        tempMin:   p.temp_min,
+        tempMax:   p.temp_max,
+        windMax:   p.wind_max,
+        rain:      p.rain_preference,
+        hourStart: p.hour_start,
+        hourEnd:   p.hour_end
       }
     };
   }

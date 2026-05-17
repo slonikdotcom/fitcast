@@ -62,52 +62,70 @@
     };
   }
 
-  /* --- Чи "сприятлива" година для вуличного тренування --- */
-  function isGoodForOutdoor(hour) {
-    const G = CFG.GOOD_WEATHER;
-    if (hour.temp < G.tempMin || hour.temp > G.tempMax) return false;
-    if (hour.wind > G.windMax) return false;
-    if (G.badConditions.indexOf(hour.weatherMain) !== -1) return false;
+  /* Чи "сприятлива" година для вуличного тренування.
+     settings — індивідуальні пороги користувача (з профілю); якщо нема — дефолти. */
+  function isGoodForOutdoor(hour, settings) {
+    const s = settings || {
+      tempMin: CFG.GOOD_WEATHER.tempMin,
+      tempMax: CFG.GOOD_WEATHER.tempMax,
+      windMax: CFG.GOOD_WEATHER.windMax,
+      rain:    'none'
+    };
+    if (hour.temp < s.tempMin || hour.temp > s.tempMax) return false;
+    if (hour.wind > s.windMax) return false;
+
+    const main = hour.weatherMain;
+    const rainMm = hour.rain || 0;
+
+    if (s.rain === 'any') {
+      // Тільки гроза — завжди погано (небезпечно тренуватись)
+      if (main === 'Thunderstorm') return false;
+    } else if (s.rain === 'light') {
+      // Легкий дощ ок, але не сильний/сніг/гроза
+      if (main === 'Snow' || main === 'Thunderstorm') return false;
+      if (main === 'Rain' && rainMm > 1.5) return false;
+    } else {
+      // 'none' (за замовчуванням) — жодних опадів
+      if (['Rain', 'Drizzle', 'Snow', 'Thunderstorm'].indexOf(main) !== -1) return false;
+    }
     return true;
   }
 
   /* --- Основні методи API --- */
 
   async function fetchByCity(city) {
-    return fetchForecast({ q: city });
+    return fetchForecast({ city: city });
   }
 
   async function fetchByCoords(lat, lon) {
     return fetchForecast({ lat: lat, lon: lon });
   }
 
+  /* Клієнт ходить на НАШ проксі /api/weather (а не на OWM напряму).
+     Так ключ ховається на сервері. Якщо проксі повертає 503
+     (ключа немає на сервері) — фоллбек на мок-дані. */
   async function fetchForecast(params) {
-    // Якщо ключа немає — фоллбек на мок
-    if (!CFG.hasValidKey()) {
-      console.warn('[FitCast] API-ключ OpenWeatherMap не налаштовано — використовуються мок-дані');
-      // Імітуємо мережеву затримку для реалістичного UX
-      await new Promise(function (r) { setTimeout(r, 600); });
-      const cityName = params.q || 'Київ (мок)';
-      const raw = MOCK.generateMockForecast(cityName);
-      return normalizeForecast(raw);
+    const qs = new URLSearchParams(params);
+    let response;
+    try {
+      response = await fetchWithTimeout('/api/weather?' + qs.toString(), CFG.TIMEOUT);
+    } catch (e) {
+      throw e;
     }
 
-    // Реальний запит
-    const url = buildUrl(params);
-    const response = await fetchWithTimeout(url, CFG.TIMEOUT);
-
+    if (response.status === 503) {
+      console.warn('[FitCast] Сервер каже що OWM не налаштовано — використовуються мок-дані');
+      await new Promise(r => setTimeout(r, 400));
+      const cityName = params.city || 'Київ (мок)';
+      return normalizeForecast(MOCK.generateMockForecast(cityName));
+    }
     if (!response.ok) {
-      // OWM повертає 404 для невідомих міст, 401 для невалідного ключа
-      if (response.status === 404) {
-        throw new Error('Місто не знайдено — перевір назву');
-      }
-      if (response.status === 401) {
-        throw new Error('API-ключ невалідний або ще не активований (зачекай ~10 хв після реєстрації)');
-      }
-      if (response.status === 429) {
-        throw new Error('Перевищено ліміт запитів — спробуй за хвилину');
-      }
-      throw new Error('Помилка сервера: HTTP ' + response.status);
+      let msg;
+      try { msg = (await response.json()).error; } catch { msg = null; }
+      if (response.status === 404) throw new Error(msg || 'Місто не знайдено');
+      if (response.status === 401) throw new Error('Не авторизовано');
+      if (response.status === 429) throw new Error(msg || 'Перевищено ліміт');
+      throw new Error(msg || 'Помилка сервера: HTTP ' + response.status);
     }
 
     const data = await response.json();
@@ -140,8 +158,8 @@
         function (err) {
           const messages = {
             1: 'Доступ до геолокації заборонено — дозволь у налаштуваннях браузера',
-            2: 'Не вдалося визначити локацію',
-            3: 'Таймаут геолокації'
+            2: 'Не вдалося визначити локацію. Введи місто вручну вище та натисни «Знайти».',
+            3: 'Таймаут геолокації. Введи місто вручну вище та натисни «Знайти».'
           };
           reject(new Error(messages[err.code] || 'Помилка геолокації'));
         },

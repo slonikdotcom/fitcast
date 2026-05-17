@@ -92,7 +92,8 @@ async function getUserFromRequest(req) {
   if (!userId) return null;
   return queryOne(
     `SELECT id, name, email, city, avatar, joined_date,
-            temp_min, temp_max, wind_max, rain_preference
+            temp_min, temp_max, wind_max, rain_preference,
+            hour_start, hour_end
      FROM users WHERE id = $1`,
     [userId]
   );

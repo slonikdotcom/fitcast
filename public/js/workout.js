@@ -48,6 +48,22 @@
             'Не вдалося завантажити тренування для редагування.', 'error');
         }
       })();
+    } else {
+      // Прехід з погодного віджету: ?date=YYYY-MM-DD&time=HH:MM
+      // (нове тренування, але з підказкою про дату/час)
+      const params = new URLSearchParams(window.location.search);
+      const presetDate = params.get('date');
+      const presetTime = params.get('time');
+      if (presetDate && /^\d{4}-\d{2}-\d{2}$/.test(presetDate)) {
+        dateInput.value = presetDate;
+      }
+      if (presetTime && /^\d{2}:\d{2}$/.test(presetTime)) {
+        timeInput.value = presetTime;
+      }
+      if (presetDate || presetTime) {
+        V.showFormMessage(form,
+          '☀️ Сприятлива година для тренувань. Поля заповнено — обери тип і збережи.', 'info');
+      }
     }
 
     function getEditIdFromUrl() {
