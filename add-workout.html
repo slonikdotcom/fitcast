@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>FitCast — Додати тренування</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Raleway:wght@300;400;600;700;800&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="style.css" />
+  <style>
+    .add-page {
+      min-height: 100vh;
+      padding: 80px 40px 60px;
+      position: relative;
+      z-index: 1;
+      display: flex;
+      justify-content: center;
+      align-items: flex-start;
+    }
+
+    .add-card {
+      background-color: rgba(255,255,255,0.85);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      border-radius: 24px;
+      padding: 48px 40px;
+      width: 100%;
+      max-width: 600px;
+      box-shadow: 0 8px 40px rgba(46,66,40,0.18);
+      margin-top: 20px;
+    }
+
+    .add-card__title {
+      font-size: 1.8rem;
+      font-weight: 700;
+      color: var(--text-dark);
+      margin-bottom: 8px;
+    }
+
+    .add-card__sub {
+      color: var(--text-light);
+      font-size: 0.9rem;
+      margin-bottom: 36px;
+    }
+
+    .form--row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 20px;
+    }
+
+    /* mood-кнопки винесено в style.css (бо потрібні і в history) */
+  </style>
+</head>
+<body>
+
+  <!-- NOISE GRADIENT BACKGROUND -->
+  <div class="noise-bg">
+    <div class="noise-bg__wave1"></div>
+    <div class="noise-bg__wave2"></div>
+    <div class="noise-bg__noise"></div>
+  </div>
+
+  <!-- BURGER -->
+  <div class="burger" id="burgerBtn">
+    <div class="burger__line"></div>
+    <div class="burger__line"></div>
+    <div class="burger__line"></div>
+  </div>
+
+  <!-- ЛОГОТИП -->
+  <div class="dashboard-logo">FitCast</div>
+
+  <!-- SIDEBAR -->
+  <aside class="sidebar" id="sidebar">
+    <nav class="sidebar__nav">
+      <a href="index.html" class="sidebar__link">Головна</a>
+      <a href="dashboard.html" class="sidebar__link">Дашборд</a>
+      <a href="history.html" class="sidebar__link">Історія тренувань</a>
+      <a href="add-workout.html" class="sidebar__link active">Додати тренування</a>
+      <a href="profile.html" class="sidebar__link">Редагувати профіль</a>
+      <div class="sidebar__divider"></div>
+      <a href="about.html" class="sidebar__link">Про FitCast</a>
+      <a href="login.html" class="sidebar__link">Вийти з акаунту</a>
+    </nav>
+  </aside>
+
+  <!-- КОНТЕНТ -->
+  <main class="add-page">
+    <div class="add-card">
+
+      <div class="add-card__title" id="formTitle">Нове тренування</div>
+      <div class="add-card__sub" id="formSubtitle">Заплануйте заняття — нотатки і враження можна додати після</div>
+
+      <form class="form" action="#" method="POST" enctype="multipart/form-data" id="workoutForm">
+
+        <!-- Тип тренування -->
+        <div class="form__group">
+          <label class="form__label" for="type">Тип тренування</label>
+          <select id="type" name="type" required>
+            <option value="">Оберіть тип</option>
+            <option value="run">🏃 Біг</option>
+            <option value="gym">🏋️ Зал</option>
+            <option value="bike">🚴 Велосипед</option>
+            <option value="yoga">🧘 Йога</option>
+            <option value="swim">🏊 Плавання</option>
+            <option value="other">✏️ Інше</option>
+          </select>
+          <input
+            type="text"
+            id="type-custom"
+            name="type_custom"
+            placeholder="Введіть свій тип тренування"
+            class="custom-input"
+            style="display:none; margin-top: 10px;"
+          />
+        </div>
+
+        <!-- Дата та час (два поля в рядок) -->
+        <div class="form--row">
+          <div class="form__group">
+            <label class="form__label" for="date">Дата</label>
+            <input type="date" id="date" name="date" required />
+          </div>
+          <div class="form__group">
+            <label class="form__label" for="time-start">Час початку</label>
+            <input type="time" id="time-start" name="time_start" required />
+          </div>
+        </div>
+
+        <div class="form--row">
+          <div class="form__group">
+            <label class="form__label" for="duration">Тривалість (хвилин)</label>
+            <input type="number" id="duration" name="duration" min="1" max="600" placeholder="60" required />
+          </div>
+          <div class="form__group">
+            <label class="form__label" for="place">Локація</label>
+            <select id="place" name="place">
+              <option value="outdoor">🌿 Вулиця</option>
+              <option value="home">🏠 Дім</option>
+              <option value="gym">🏋️ Зал</option>
+              <option value="other">✏️ Інше</option>
+            </select>
+            <input
+              type="text"
+              id="place-custom"
+              name="place_custom"
+              placeholder="Введіть свою локацію"
+              class="custom-input"
+              style="display:none; margin-top: 10px;"
+            />
+          </div>
+        </div>
+
+        <!-- Нотатки -->
+        <div class="form__group">
+          <label class="form__label" for="notes">Нотатки</label>
+          <textarea id="notes" name="notes" placeholder="Як пройшло тренування? (необов'язково)"></textarea>
+        </div>
+
+        <!-- Фото -->
+        <div class="form__group">
+          <label class="form__label" for="photo">Фото з тренування</label>
+          <input type="file" id="photo" name="photo" accept="image/*" />
+        </div>
+
+        <button type="submit" class="form__btn" id="submitBtn">Зберегти тренування</button>
+
+      </form>
+    </div>
+  </main>
+
+  <!-- Зовнішні скрипти (лаба 3) -->
+  <script src="js/validation.js" defer></script>
+  <script src="js/sidebar.js" defer></script>
+  <script src="js/photo-preview.js" defer></script>
+  <script src="js/workouts-data.js" defer></script>
+  <script src="js/workout.js" defer></script>
+
+</body>
+</html>

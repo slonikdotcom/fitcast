@@ -1,0 +1,346 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>FitCast — Профіль</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Raleway:wght@300;400;600;700;800&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="style.css" />
+  <style>
+    .profile-page {
+      min-height: 100vh;
+      padding: 80px 40px 60px;
+      position: relative;
+      z-index: 1;
+      display: flex;
+      justify-content: center;
+      align-items: flex-start;
+    }
+
+    .profile-wrap {
+      width: 100%;
+      max-width: 680px;
+      margin-top: 20px;
+      display: flex;
+      flex-direction: column;
+      gap: 24px;
+    }
+
+    .profile-card {
+      background-color: rgba(255,255,255,0.85);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      border-radius: 24px;
+      padding: 36px 40px;
+      box-shadow: 0 8px 40px rgba(46,66,40,0.18);
+    }
+
+    .profile-card__title {
+      font-size: 1.1rem;
+      font-weight: 700;
+      color: var(--text-dark);
+      letter-spacing: 0.5px;
+      margin-bottom: 24px;
+      padding-bottom: 12px;
+      border-bottom: 2px solid var(--green-light);
+    }
+
+    /* Аватар */
+    .avatar-section {
+      display: flex;
+      align-items: center;
+      gap: 28px;
+      margin-bottom: 28px;
+    }
+
+    .avatar {
+      width: 80px;
+      height: 80px;
+      border-radius: 50%;
+      background-color: var(--green-mid);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 2rem;
+      font-weight: 700;
+      color: var(--white);
+      flex-shrink: 0;
+      position: relative;
+      overflow: visible;
+    }
+
+    /* Літера за замовчуванням видима, фото та хрестик — приховані */
+    .avatar__letter { display: block; }
+    .avatar__img    { display: none; width: 80px; height: 80px; object-fit: cover; border-radius: 50%; }
+    .avatar__remove { display: none; }
+
+    /* Коли є фото — перемикаємо: літера приховується, фото видно */
+    .avatar--has-photo                  { background-color: transparent; }
+    .avatar--has-photo .avatar__letter  { display: none; }
+    .avatar--has-photo .avatar__img     { display: block; }
+    .avatar--has-photo .avatar__remove  { display: flex; }
+
+    .avatar__remove {
+      position: absolute;
+      top: -6px;
+      right: -6px;
+      width: 26px;
+      height: 26px;
+      border-radius: 50%;
+      border: 2px solid var(--white);
+      background-color: #c64a4a;
+      color: var(--white);
+      font-size: 0.75rem;
+      cursor: pointer;
+      font-weight: 700;
+      box-shadow: var(--shadow);
+      align-items: center;
+      justify-content: center;
+      transition: background-color 0.15s, transform 0.15s;
+    }
+
+    .avatar__remove:hover {
+      background-color: #a23a3a;
+      transform: scale(1.1);
+    }
+
+    .avatar-info__name {
+      font-size: 1.3rem;
+      font-weight: 700;
+      color: var(--text-dark);
+    }
+
+    .avatar-info__date {
+      font-size: 0.85rem;
+      color: var(--text-light);
+      margin-top: 4px;
+    }
+
+    /* Статистика */
+    .stats-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 16px;
+    }
+
+    .stat-item {
+      text-align: center;
+      padding: 20px 16px;
+      background-color: var(--green-pale);
+      border-radius: 16px;
+    }
+
+    .stat-item__value {
+      font-size: 2rem;
+      font-weight: 800;
+      color: var(--green-dark);
+    }
+
+    .stat-item__label {
+      font-size: 0.8rem;
+      color: var(--text-light);
+      margin-top: 4px;
+    }
+
+    /* Налаштування погоди */
+    .weather-settings {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 20px;
+    }
+
+    .range-group {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    .range-value {
+      font-size: 0.85rem;
+      font-weight: 700;
+      color: var(--green-dark);
+      text-align: right;
+    }
+
+    input[type="range"] {
+      width: 100%;
+      accent-color: var(--green-dark);
+      padding: 0;
+      border: none;
+      background: transparent;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- NOISE GRADIENT BACKGROUND -->
+  <div class="noise-bg">
+    <div class="noise-bg__wave1"></div>
+    <div class="noise-bg__wave2"></div>
+    <div class="noise-bg__noise"></div>
+  </div>
+
+  <!-- BURGER -->
+  <div class="burger" id="burgerBtn">
+    <div class="burger__line"></div>
+    <div class="burger__line"></div>
+    <div class="burger__line"></div>
+  </div>
+
+  <!-- ЛОГОТИП -->
+  <div class="dashboard-logo">FitCast</div>
+
+  <!-- SIDEBAR -->
+  <aside class="sidebar" id="sidebar">
+    <nav class="sidebar__nav">
+      <a href="index.html" class="sidebar__link">Головна</a>
+      <a href="dashboard.html" class="sidebar__link">Дашборд</a>
+      <a href="history.html" class="sidebar__link">Історія тренувань</a>
+      <a href="add-workout.html" class="sidebar__link">Додати тренування</a>
+      <a href="profile.html" class="sidebar__link active">Редагувати профіль</a>
+      <div class="sidebar__divider"></div>
+      <a href="about.html" class="sidebar__link">Про FitCast</a>
+      <a href="login.html" class="sidebar__link">Вийти з акаунту</a>
+    </nav>
+  </aside>
+
+  <!-- КОНТЕНТ -->
+  <main class="profile-page">
+    <div class="profile-wrap">
+
+      <!-- Блок: аватар + ім'я -->
+      <div class="profile-card">
+        <div class="avatar-section">
+          <div class="avatar" id="userAvatar">
+            <span class="avatar__letter">Т</span>
+            <img class="avatar__img" id="avatarImg" alt="" />
+            <button type="button" class="avatar__remove" id="avatarRemove" title="Прибрати фото" aria-label="Прибрати фото">✕</button>
+          </div>
+          <div class="avatar-info">
+            <div class="avatar-info__name">Тома</div>
+            <div class="avatar-info__date">У FitCast з травня 2026</div>
+          </div>
+        </div>
+
+        <!-- Завантаження аватара -->
+        <div class="form__group">
+          <label class="form__label" for="avatar-upload">Змінити фото профілю</label>
+          <input type="file" id="avatar-upload" name="avatar" accept="image/*" data-no-preview="1" />
+        </div>
+      </div>
+
+      <!-- Блок: статистика -->
+      <div class="profile-card">
+        <div class="profile-card__title">Моя статистика</div>
+        <div class="stats-grid">
+          <div class="stat-item">
+            <div class="stat-item__value">24</div>
+            <div class="stat-item__label">Тренувань</div>
+          </div>
+          <div class="stat-item">
+            <div class="stat-item__value">18</div>
+            <div class="stat-item__label">Годин</div>
+          </div>
+          <div class="stat-item">
+            <div class="stat-item__value">7</div>
+            <div class="stat-item__label">Цього тижня</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Блок: редагування даних -->
+      <div class="profile-card">
+        <div class="profile-card__title">Особисті дані</div>
+
+        <form class="form" action="#" method="POST">
+
+          <div class="form__group">
+            <label class="form__label" for="name">Ім'я</label>
+            <input type="text" id="name" name="name" value="Тома" />
+          </div>
+
+          <div class="form__group">
+            <label class="form__label" for="email">Email</label>
+            <input type="email" id="email" name="email" value="toma@example.com" />
+          </div>
+
+          <div class="form__group">
+            <label class="form__label" for="city">Місто (для прогнозу погоди)</label>
+            <select id="city" name="city">
+              <option value="Kyiv" selected>Київ</option>
+              <option value="Lviv">Львів</option>
+              <option value="Kharkiv">Харків</option>
+              <option value="Odessa">Одеса</option>
+              <option value="Dnipro">Дніпро</option>
+            </select>
+          </div>
+
+          <div class="form__group">
+            <label class="form__label" for="new-password">Новий пароль (залиште порожнім якщо не змінюєте)</label>
+            <input type="password" id="new-password" name="new_password" placeholder="Новий пароль" />
+          </div>
+
+          <div class="form__group">
+            <label class="form__label" for="confirm-password">Підтвердження нового пароля</label>
+            <input type="password" id="confirm-password" name="confirm_password" placeholder="Повторіть пароль" />
+          </div>
+
+          <button type="submit" class="form__btn">Зберегти зміни</button>
+
+        </form>
+      </div>
+
+      <!-- Блок: налаштування погоди -->
+      <div class="profile-card">
+        <div class="profile-card__title">Налаштування погоди для тренувань</div>
+
+        <form class="form" action="#" method="POST">
+          <div class="weather-settings">
+
+            <div class="range-group">
+              <label class="form__label" for="temp-min">Мінімальна температура</label>
+              <input type="range" id="temp-min" name="temp_min" min="-10" max="20" value="10" />
+              <div class="range-value" id="temp-min-val">10°C</div>
+            </div>
+
+            <div class="range-group">
+              <label class="form__label" for="temp-max">Максимальна температура</label>
+              <input type="range" id="temp-max" name="temp_max" min="15" max="40" value="28" />
+              <div class="range-value" id="temp-max-val">28°C</div>
+            </div>
+
+            <div class="range-group">
+              <label class="form__label" for="wind-max">Макс. швидкість вітру</label>
+              <input type="range" id="wind-max" name="wind_max" min="1" max="20" value="10" />
+              <div class="range-value" id="wind-val">10 м/с</div>
+            </div>
+
+            <div class="form__group">
+              <label class="form__label" for="rain">Допустимі опади</label>
+              <select id="rain" name="rain">
+                <option value="none">Без опадів</option>
+                <option value="light">Легкий дощ — ок</option>
+                <option value="any">Будь-яка погода</option>
+              </select>
+            </div>
+
+          </div>
+
+          <button type="submit" class="form__btn" style="margin-top: 8px;">Зберегти налаштування</button>
+
+        </form>
+      </div>
+
+    </div>
+  </main>
+
+  <!-- Зовнішні скрипти (лаба 3) -->
+  <script src="js/validation.js" defer></script>
+  <script src="js/sidebar.js" defer></script>
+  <script src="js/photo-preview.js" defer></script>
+  <script src="js/user-data.js" defer></script>
+  <script src="js/profile.js" defer></script>
+
+</body>
+</html>

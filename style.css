@@ -1,0 +1,1659 @@
+/* ========================
+   FITCAST — style.css
+   Лаба 2: зовнішній файл стилів
+   ======================== */
+
+/* --- CSS змінні --- */
+:root {
+  --green-dark: #4a6741;
+  --green-mid: #7a9e72;
+  --green-light: #c8d9c3;
+  --green-pale: #e8f0e5;
+  --white: #ffffff;
+  --text-dark: #1e2a1a;
+  --text-mid: #4a5e44;
+  --text-light: #7a8e74;
+  --radius: 32px;
+  --radius-sm: 16px;
+  --shadow: 0 4px 24px rgba(74, 103, 65, 0.15);
+  --font-main: 'Raleway', sans-serif;
+}
+
+/* --- Загальний скидання (box model) --- */
+*, *::before, *::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+/* --- Селектор тегу --- */
+body {
+  font-family: var(--font-main);
+  background-color: var(--green-pale);
+  color: var(--text-dark);
+  min-height: 100vh;
+}
+
+/* --- Селектор тегу --- */
+a {
+  text-decoration: none;
+  color: inherit;
+}
+
+ul {
+  list-style: none;
+}
+
+img {
+  max-width: 100%;
+  display: block;
+}
+
+/* ========================
+   NAVBAR (публічні сторінки)
+   ======================== */
+
+/* --- Селектор класу --- */
+.navbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 16px 40px;
+  background-color: var(--green-mid);
+  position: sticky;
+  top: 0;
+  z-index: 100;
+}
+
+.navbar__logo {
+  font-size: 1.2rem;
+  font-weight: 700;
+  color: var(--white);
+  letter-spacing: 2px;
+}
+
+.navbar__links {
+  display: flex;
+  gap: 16px;
+}
+
+/* --- Селектор класу + псевдоклас --- */
+.navbar__btn {
+  padding: 10px 28px;
+  border-radius: var(--radius);
+  background-color: var(--green-dark);
+  color: var(--white);
+  font-family: var(--font-main);
+  font-size: 1rem;
+  font-weight: 600;
+  border: none;
+  cursor: pointer;
+  transition: background 0.2s, transform 0.15s;
+}
+
+.navbar__btn:hover {
+  background-color: var(--text-dark);
+  transform: translateY(-2px);
+}
+
+/* --- Селектор атрибуту --- */
+.navbar__btn[data-variant="outline"] {
+  background-color: transparent;
+  border: 2px solid var(--white);
+  color: var(--white);
+}
+
+.navbar__btn[data-variant="outline"]:hover {
+  background-color: var(--white);
+  color: var(--green-dark);
+}
+
+/* ========================
+   HERO (лендінг)
+   ======================== */
+
+/* --- Селектор ідентифікатора --- */
+#hero {
+  min-height: calc(100vh - 70px);
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  padding: 60px 80px;
+  background: radial-gradient(ellipse at 65% 50%, var(--green-mid) 0%, var(--green-pale) 65%);
+  position: relative;
+}
+
+.hero__title {
+  font-size: clamp(4rem, 10vw, 8rem);
+  font-weight: 300;
+  color: var(--white);
+  letter-spacing: 12px;
+  line-height: 1;
+  margin-bottom: 24px;
+}
+
+.hero__subtitle {
+  font-size: 1rem;
+  letter-spacing: 3px;
+  text-transform: uppercase;
+  color: var(--white);
+  opacity: 0.85;
+  margin-bottom: 40px;
+}
+
+.hero__btn {
+  display: inline-block;
+  padding: 16px 48px;
+  background-color: var(--green-dark);
+  color: var(--white);
+  border-radius: var(--radius);
+  font-size: 1rem;
+  font-weight: 700;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  width: fit-content;
+  transition: background 0.2s, transform 0.15s;
+}
+
+/* --- Псевдоклас --- */
+.hero__btn:hover {
+  background-color: var(--text-dark);
+  transform: translateY(-3px);
+}
+
+/* ========================
+   СЕКЦІЯ "ЯК ЦЕ ПРАЦЮЄ"
+   ======================== */
+
+.how-it-works {
+  padding: 80px 80px;
+  background-color: var(--white);
+}
+
+.section__title {
+  font-size: 1.8rem;
+  font-weight: 700;
+  color: var(--text-dark);
+  margin-bottom: 48px;
+  letter-spacing: 1px;
+}
+
+/* --- Сіткова верстка --- */
+.steps {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 32px;
+}
+
+.step-card {
+  background-color: var(--green-pale);
+  border-radius: var(--radius-sm);
+  padding: 36px 28px;
+  box-shadow: var(--shadow);
+}
+
+.step-card__number {
+  font-size: 2.5rem;
+  font-weight: 800;
+  color: var(--green-mid);
+  margin-bottom: 12px;
+}
+
+.step-card__title {
+  font-size: 1.1rem;
+  font-weight: 700;
+  margin-bottom: 8px;
+  color: var(--text-dark);
+}
+
+.step-card__text {
+  font-size: 0.9rem;
+  color: var(--text-mid);
+  line-height: 1.6;
+}
+
+/* ========================
+   СЕКЦІЯ ПОГОДА (лендінг)
+   ======================== */
+
+.weather-preview {
+  padding: 80px;
+  background-color: var(--green-pale);
+}
+
+/* --- Flexbox --- */
+.weather-preview__inner {
+  display: flex;
+  gap: 24px;
+  flex-wrap: wrap;
+  margin-top: 32px;
+}
+
+.weather-slot {
+  flex: 1 1 140px;
+  background-color: var(--white);
+  border-radius: var(--radius-sm);
+  padding: 20px;
+  text-align: center;
+  box-shadow: var(--shadow);
+}
+
+/* --- Селектор класу з модифікатором --- */
+.weather-slot--good {
+  background-color: var(--green-dark);
+  color: var(--white);
+}
+
+.weather-slot__time {
+  font-size: 0.85rem;
+  font-weight: 700;
+  letter-spacing: 1px;
+  margin-bottom: 6px;
+  opacity: 0.8;
+}
+
+.weather-slot__temp {
+  font-size: 1.6rem;
+  font-weight: 800;
+}
+
+.weather-slot__desc {
+  font-size: 0.8rem;
+  margin-top: 4px;
+  opacity: 0.75;
+}
+
+/* ========================
+   СПИСКИ
+   ======================== */
+
+/* --- Маркований список --- */
+.features-list {
+  list-style: disc;
+  padding-left: 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  color: var(--text-mid);
+  font-size: 0.95rem;
+  line-height: 1.6;
+}
+
+/* --- Нумерований список --- */
+.steps-list {
+  list-style: decimal;
+  padding-left: 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  color: var(--text-mid);
+  font-size: 0.95rem;
+  line-height: 1.6;
+}
+
+/* ========================
+   ФОРМА (реєстрація / вхід)
+   ======================== */
+
+.auth-page {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  z-index: 1;
+  padding: 40px 20px;
+}
+
+.auth-card {
+  background-color: var(--white);
+  border-radius: var(--radius-sm);
+  padding: 48px 40px;
+  width: 100%;
+  max-width: 440px;
+  box-shadow: var(--shadow);
+}
+
+.auth-card__logo {
+  font-size: 1.5rem;
+  font-weight: 800;
+  letter-spacing: 4px;
+  color: var(--green-dark);
+  text-align: center;
+  margin-bottom: 8px;
+}
+
+.auth-card__title {
+  font-size: 1.1rem;
+  color: var(--text-light);
+  text-align: center;
+  margin-bottom: 36px;
+}
+
+/* --- Форма --- */
+.form {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.form__group {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.form__label {
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--text-mid);
+  letter-spacing: 0.5px;
+}
+
+/* --- Селектор атрибуту для input --- */
+input[type="text"],
+input[type="email"],
+input[type="password"],
+input[type="number"],
+input[type="date"],
+input[type="time"],
+input[type="file"],
+select,
+textarea {
+  width: 100%;
+  padding: 12px 16px;
+  border: 2px solid var(--green-light);
+  border-radius: var(--radius-sm);
+  font-family: var(--font-main);
+  font-size: 0.95rem;
+  color: var(--text-dark);
+  background-color: var(--green-pale);
+  transition: border-color 0.2s;
+  outline: none;
+}
+
+/* --- Псевдоклас :focus --- */
+input[type="text"]:focus,
+input[type="email"]:focus,
+input[type="password"]:focus,
+input[type="number"]:focus,
+input[type="date"]:focus,
+input[type="time"]:focus,
+select:focus,
+textarea:focus {
+  border-color: var(--green-dark);
+  background-color: var(--white);
+}
+
+textarea {
+  resize: vertical;
+  min-height: 100px;
+}
+
+.form__btn {
+  padding: 14px;
+  background-color: var(--green-dark);
+  color: var(--white);
+  border: none;
+  border-radius: var(--radius);
+  font-family: var(--font-main);
+  font-size: 1rem;
+  font-weight: 700;
+  letter-spacing: 1px;
+  cursor: pointer;
+  transition: background 0.2s, transform 0.15s;
+  margin-top: 8px;
+}
+
+.form__btn:hover {
+  background-color: var(--text-dark);
+  transform: translateY(-2px);
+}
+
+.form__switch {
+  text-align: center;
+  font-size: 0.9rem;
+  color: var(--text-light);
+  margin-top: 16px;
+}
+
+/* --- Комбінатор (дочірній) --- */
+.form__switch > a {
+  color: var(--green-dark);
+  font-weight: 700;
+}
+
+.form__switch > a:hover {
+  text-decoration: underline;
+}
+
+/* ========================
+   ANIMATED NOISE GRADIENT BACKGROUND
+   (використовується на дашборді, історії, auth)
+   ======================== */
+
+@keyframes gradientShift {
+  0%   { background-position: 0% 50%; }
+  25%  { background-position: 100% 30%; }
+  50%  { background-position: 80% 80%; }
+  75%  { background-position: 20% 100%; }
+  100% { background-position: 0% 50%; }
+}
+
+@keyframes waveMove {
+  0%   { transform: translateX(0) translateY(0) scale(1); }
+  33%  { transform: translateX(-40px) translateY(20px) scale(1.05); }
+  66%  { transform: translateX(30px) translateY(-15px) scale(0.97); }
+  100% { transform: translateX(0) translateY(0) scale(1); }
+}
+
+@keyframes waveMove2 {
+  0%   { transform: translateX(0) translateY(0) scale(1.1); }
+  40%  { transform: translateX(50px) translateY(-30px) scale(1); }
+  70%  { transform: translateX(-20px) translateY(40px) scale(1.08); }
+  100% { transform: translateX(0) translateY(0) scale(1.1); }
+}
+
+/* Обгортка для шумового фону */
+.noise-bg {
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  overflow: hidden;
+  pointer-events: none;
+}
+
+/* Базовий фон */
+.noise-bg::before {
+  content: "";
+  position: absolute;
+  inset: -60px;
+  background:
+    radial-gradient(ellipse 80% 70% at 20% 30%, #4a6741 0%, transparent 60%),
+    radial-gradient(ellipse 60% 80% at 80% 70%, #3d5535 0%, transparent 55%),
+    radial-gradient(ellipse 90% 50% at 55% 10%, #7a9e72 0%, transparent 50%),
+    radial-gradient(ellipse 70% 60% at 10% 80%, #2e4228 0%, transparent 60%),
+    #c8d9c3;
+  background-size: 300% 300%;
+  animation: gradientShift 36s ease infinite;
+}
+
+/* Хвиля 1 */
+.noise-bg__wave1 {
+  position: absolute;
+  inset: -80px;
+  background:
+    radial-gradient(ellipse 55% 65% at 70% 20%, rgba(74,103,65,0.7) 0%, transparent 65%),
+    radial-gradient(ellipse 45% 55% at 30% 75%, rgba(46,66,40,0.6) 0%, transparent 60%);
+  animation: waveMove 28s ease-in-out infinite;
+  mix-blend-mode: multiply;
+}
+
+/* Хвиля 2 */
+.noise-bg__wave2 {
+  position: absolute;
+  inset: -80px;
+  background:
+    radial-gradient(ellipse 65% 45% at 50% 60%, rgba(122,158,114,0.5) 0%, transparent 55%),
+    radial-gradient(ellipse 40% 70% at 85% 40%, rgba(61,85,53,0.55) 0%, transparent 60%);
+  animation: waveMove2 40s ease-in-out infinite;
+  mix-blend-mode: multiply;
+}
+
+/* Шум поверх (SVG feTurbulence через data URI) */
+.noise-bg__noise {
+  position: absolute;
+  inset: 0;
+  opacity: 0.38;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 512 512' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.72' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='512' height='512' filter='url(%23n)' opacity='1'/%3E%3C/svg%3E");
+  background-size: 220px 220px;
+  mix-blend-mode: overlay;
+  pointer-events: none;
+}
+
+/* ========================
+   ДАШБОРД
+   ======================== */
+
+.dashboard-page {
+  min-height: 100vh;
+  padding: 60px 40px;
+  position: relative;
+  z-index: 1;
+}
+
+/* --- Плаваючий елемент: burger (float left) --- */
+.burger {
+  position: fixed;
+  top: 20px;
+  left: 20px;
+  width: 44px;
+  height: 44px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 6px;
+  cursor: pointer;
+  z-index: 200;
+  float: left;
+}
+
+.burger__line {
+  width: 28px;
+  height: 3px;
+  background-color: var(--text-dark);
+  border-radius: 2px;
+  transition: transform 0.3s;
+}
+
+/* --- Плаваючий елемент: логотип (float right) --- */
+.dashboard-logo {
+  position: fixed;
+  top: 22px;
+  right: 28px;
+  font-size: 1.1rem;
+  font-weight: 800;
+  letter-spacing: 3px;
+  color: var(--text-dark);
+  float: right;
+  z-index: 200;
+}
+
+/* --- Плаваючий елемент: sidebar (float left, absolute) --- */
+.sidebar {
+  position: fixed;
+  top: 0;
+  left: -280px;
+  width: 260px;
+  height: 100vh;
+  background-color: rgba(200, 217, 195, 0.75);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  padding: 80px 24px 40px;
+  z-index: 150;
+  transition: left 0.3s ease;
+  box-shadow: var(--shadow);
+  float: left;
+}
+
+.sidebar.open {
+  left: 0;
+}
+
+.sidebar__nav {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.sidebar__link {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 12px 16px;
+  border-radius: var(--radius-sm);
+  color: var(--text-dark);
+  font-size: 0.95rem;
+  font-weight: 600;
+  transition: background 0.15s;
+}
+
+/* --- Псевдоклас :hover --- */
+.sidebar__link:hover {
+  background-color: var(--green-mid);
+  color: var(--white);
+}
+
+/* --- Псевдоелемент ::before для активного пункту --- */
+.sidebar__link.active::before {
+  content: "▶";
+  font-size: 0.6rem;
+  color: var(--green-dark);
+}
+
+.sidebar__divider {
+  height: 1px;
+  background-color: var(--green-mid);
+  margin: 16px 0;
+  opacity: 0.4;
+}
+
+.dashboard__greeting {
+  font-size: clamp(2.5rem, 6vw, 4.5rem);
+  font-weight: 300;
+  color: var(--text-dark);
+  margin-bottom: 12px;
+  margin-top: 60px;
+  text-align: center;
+}
+
+.dashboard__subtitle {
+  font-size: 1rem;
+  color: var(--text-mid);
+  text-align: center;
+  margin-bottom: 32px;
+  letter-spacing: 0.5px;
+}
+
+/* --- Картки тренувань (flex) --- */
+.workouts-today {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 16px;
+  margin-bottom: 48px;
+}
+
+.workout-card {
+  background-color: var(--green-dark);
+  color: var(--white);
+  padding: 18px 40px;
+  border-radius: var(--radius);
+  font-size: 1rem;
+  font-weight: 600;
+  letter-spacing: 0.5px;
+  width: 100%;
+  max-width: 440px;
+  text-align: center;
+  box-shadow: var(--shadow);
+}
+
+/* Картка-посилання (натискається → редагування) */
+.workout-card--link {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  cursor: pointer;
+  transition: transform 0.18s ease, box-shadow 0.18s ease, background-color 0.18s ease;
+  text-decoration: none;
+}
+
+.workout-card--link:hover {
+  transform: translateY(-3px);
+  background-color: var(--text-dark);
+  box-shadow: 0 8px 24px rgba(46,66,40,0.3);
+}
+
+.workout-card__time {
+  font-weight: 700;
+  letter-spacing: 1px;
+}
+
+.workout-card__type {
+  font-size: 0.92rem;
+  opacity: 0.9;
+}
+
+.workout-card__hint {
+  font-size: 0.72rem;
+  opacity: 0.6;
+  letter-spacing: 0.5px;
+  margin-top: 4px;
+  text-transform: uppercase;
+}
+
+.workout-card--link:hover .workout-card__hint {
+  opacity: 0.9;
+}
+
+/* Стан "нема тренувань на сьогодні" */
+.workout-empty {
+  text-align: center;
+  color: var(--text-mid);
+  font-size: 0.95rem;
+  padding: 24px;
+  background-color: rgba(255,255,255,0.65);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  border-radius: var(--radius-sm);
+  max-width: 440px;
+  margin: 0 auto;
+}
+
+.workout-empty a {
+  color: var(--green-dark);
+  font-weight: 700;
+}
+
+.workout-empty a:hover {
+  text-decoration: underline;
+}
+
+/* Кастомне поле вводу після "Інше" */
+.custom-input {
+  animation: fadeSlideIn 0.2s ease;
+}
+
+@keyframes fadeSlideIn {
+  from {
+    opacity: 0;
+    transform: translateY(-6px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* ========================
+   АКОРДЕОН ТРЕНУВАНЬ (history)
+   ======================== */
+
+.workout-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin-bottom: 40px;
+}
+
+.wcard {
+  background-color: rgba(255,255,255,0.85);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border-radius: 20px;
+  overflow: hidden;
+  box-shadow: 0 4px 20px rgba(46,66,40,0.12);
+  transition: box-shadow 0.2s;
+}
+
+.wcard:hover {
+  box-shadow: 0 6px 28px rgba(46,66,40,0.2);
+}
+
+.wcard__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 18px 24px;
+  cursor: pointer;
+  user-select: none;
+}
+
+.wcard__main {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.wcard__emoji {
+  font-size: 1.6rem;
+  width: 44px;
+  height: 44px;
+  background-color: var(--green-pale);
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.wcard__title {
+  font-size: 1rem;
+  font-weight: 700;
+  color: var(--text-dark);
+}
+
+.wcard__meta {
+  font-size: 0.82rem;
+  color: var(--text-light);
+  margin-top: 2px;
+}
+
+.wcard__right {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.wcard__arrow {
+  font-size: 0.7rem;
+  color: var(--text-light);
+  transition: transform 0.3s ease;
+}
+
+.wcard.open .wcard__arrow {
+  transform: rotate(180deg);
+}
+
+.wcard__body {
+  max-height: 0;
+  overflow: hidden;
+  transition: max-height 0.4s ease, padding 0.3s ease;
+  padding: 0 24px;
+  border-top: 0px solid var(--green-light);
+}
+
+.wcard.open .wcard__body {
+  max-height: 600px;
+  padding: 20px 24px 24px;
+  border-top: 1px solid var(--green-light);
+}
+
+.wcard__mood-label {
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--text-mid);
+  margin-bottom: 10px;
+}
+
+/* Дії під карткою (редагування + збереження) */
+.wcard__actions {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+  margin-top: 8px;
+  flex-wrap: wrap;
+}
+
+.wcard__edit-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 10px 18px;
+  border-radius: var(--radius);
+  background-color: transparent;
+  border: 2px solid var(--green-dark);
+  color: var(--green-dark);
+  font-size: 0.88rem;
+  font-weight: 700;
+  letter-spacing: 0.3px;
+  transition: background-color 0.2s, color 0.2s, transform 0.15s;
+}
+
+.wcard__edit-link:hover {
+  background-color: var(--green-dark);
+  color: var(--white);
+  transform: translateY(-2px);
+}
+
+.wcard__actions .form__btn {
+  margin-top: 0;
+}
+
+/* ========================
+   ТАБЛИЦЯ (history)
+   ======================== */
+
+.history-page {
+  min-height: 100vh;
+  padding: 80px 40px 60px;
+  position: relative;
+  z-index: 1;
+}
+
+.history-page__title {
+  font-size: 2rem;
+  font-weight: 700;
+  color: var(--text-dark);
+  margin-bottom: 8px;
+  margin-top: 20px;
+}
+
+.history-page__subtitle {
+  color: var(--text-light);
+  margin-bottom: 32px;
+}
+
+/* --- Фільтри --- */
+.filters {
+  display: flex;
+  gap: 16px;
+  flex-wrap: wrap;
+  margin-bottom: 16px;
+  align-items: flex-end;
+  background-color: rgba(255,255,255,0.65);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  padding: 16px 20px;
+  border-radius: var(--radius-sm);
+}
+
+.filters__group {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.filters__label {
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: var(--text-mid);
+}
+
+.filters__actions {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+
+.filters__reset {
+  padding: 10px 18px;
+  background-color: transparent;
+  color: var(--green-dark);
+  border: 2px solid var(--green-mid);
+  border-radius: var(--radius);
+  font-family: var(--font-main);
+  font-size: 0.88rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: background-color 0.18s, color 0.18s;
+}
+
+.filters__reset:hover {
+  background-color: var(--green-mid);
+  color: var(--white);
+}
+
+/* Лічильник результатів */
+.filters__count {
+  font-size: 0.85rem;
+  color: var(--text-mid);
+  margin-bottom: 16px;
+  font-weight: 600;
+  padding: 6px 14px;
+  border-radius: 20px;
+  background-color: var(--green-pale);
+  display: inline-block;
+}
+
+.filters__count--filtered {
+  background-color: var(--green-light);
+  color: var(--text-dark);
+}
+
+.filters__count--empty {
+  background-color: #fdecec;
+  color: #8a2a2a;
+}
+
+/* Empty state — нічого не знайдено */
+.workout-empty-state {
+  text-align: center;
+  padding: 60px 20px;
+  background-color: rgba(255,255,255,0.65);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  border-radius: var(--radius-sm);
+  margin-bottom: 32px;
+}
+
+.workout-empty-state__icon {
+  font-size: 3rem;
+  margin-bottom: 12px;
+}
+
+.workout-empty-state__title {
+  font-size: 1.2rem;
+  font-weight: 700;
+  color: var(--text-dark);
+  margin-bottom: 8px;
+}
+
+.workout-empty-state__msg {
+  font-size: 0.9rem;
+  color: var(--text-mid);
+  max-width: 360px;
+  margin: 0 auto;
+  line-height: 1.5;
+}
+
+/* Прев'ю фото */
+.photo-preview {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 12px;
+  background-color: var(--green-pale);
+  border-radius: 12px;
+  margin-top: 8px;
+  border: 1px solid var(--green-light);
+}
+
+.photo-preview__img {
+  width: 56px;
+  height: 56px;
+  object-fit: cover;
+  border-radius: 8px;
+  flex-shrink: 0;
+}
+
+.photo-preview__info {
+  flex: 1;
+  min-width: 0;
+}
+
+.photo-preview__name {
+  font-size: 0.88rem;
+  font-weight: 600;
+  color: var(--text-dark);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.photo-preview__size {
+  font-size: 0.75rem;
+  color: var(--text-light);
+  margin-top: 2px;
+}
+
+.photo-preview__remove {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  border: none;
+  background-color: var(--white);
+  color: var(--text-mid);
+  font-size: 0.85rem;
+  cursor: pointer;
+  flex-shrink: 0;
+  transition: background-color 0.15s, color 0.15s;
+}
+
+.photo-preview__remove:hover {
+  background-color: #c64a4a;
+  color: var(--white);
+}
+
+/* Помилка завантаження файлу */
+.file-error {
+  font-size: 0.78rem;
+  color: #c64a4a;
+  margin-top: 6px;
+  font-weight: 600;
+}
+
+/* Avatar feedback (для profile) */
+.avatar-feedback {
+  font-size: 0.78rem;
+  color: var(--green-dark);
+  font-weight: 600;
+  margin-top: 6px;
+  opacity: 0;
+  transform: translateY(-4px);
+  transition: opacity 0.25s, transform 0.25s;
+}
+
+.avatar-feedback--visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+/* Mood-кнопки (історія + add-workout) */
+.mood-group {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.mood-btn {
+  display: inline-flex;
+  align-items: center;
+  padding: 8px 18px;
+  border-radius: 20px;
+  border: 2px solid var(--green-light);
+  background: transparent;
+  font-family: var(--font-main);
+  font-size: 0.9rem;
+  cursor: pointer;
+  transition: background-color 0.15s, color 0.15s, border-color 0.15s, transform 0.15s;
+  color: var(--text-mid);
+  user-select: none;
+}
+
+.mood-btn:hover {
+  border-color: var(--green-mid);
+  color: var(--text-dark);
+  transform: translateY(-1px);
+}
+
+.mood-btn.selected {
+  background-color: var(--green-dark);
+  border-color: var(--green-dark);
+  color: var(--white);
+}
+
+/* Кнопка успіху (після Save) */
+.form__btn--success {
+  background-color: var(--green-mid) !important;
+  cursor: default;
+}
+
+/* Кнопка-небезпека (Delete) */
+.form__btn--danger {
+  background-color: #c64a4a !important;
+  color: var(--white);
+}
+
+.form__btn--danger:hover {
+  background-color: #a23a3a !important;
+}
+
+/* Підпис "Збережено раніше: фото.jpg" */
+.photo-saved {
+  font-size: 0.78rem;
+  color: var(--text-light);
+  margin-top: 4px;
+  font-style: italic;
+}
+
+/* Анімація видалення картки */
+.wcard {
+  transition: opacity 0.25s ease, transform 0.25s ease;
+}
+
+/* --- Таблиця --- */
+.table-wrap {
+  overflow-x: auto;
+  border-radius: var(--radius-sm);
+  box-shadow: var(--shadow);
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+  background-color: var(--white);
+  font-size: 0.9rem;
+}
+
+/* --- Псевдоклас :first-child --- */
+th:first-child,
+td:first-child {
+  padding-left: 28px;
+}
+
+th {
+  background-color: var(--green-dark);
+  color: var(--white);
+  padding: 14px 16px;
+  text-align: left;
+  font-weight: 700;
+  letter-spacing: 0.5px;
+}
+
+td {
+  padding: 14px 16px;
+  border-bottom: 1px solid var(--green-light);
+  color: var(--text-dark);
+}
+
+/* --- Псевдоклас :nth-child --- */
+tr:nth-child(even) td {
+  background-color: var(--green-pale);
+}
+
+tr:last-child td {
+  border-bottom: none;
+}
+
+/* --- Псевдоклас :hover на рядку таблиці --- */
+tr:hover td {
+  background-color: var(--green-light);
+}
+
+.badge {
+  display: inline-block;
+  padding: 4px 12px;
+  border-radius: 20px;
+  font-size: 0.78rem;
+  font-weight: 700;
+}
+
+.badge--outdoor {
+  background-color: var(--green-dark);
+  color: var(--white);
+}
+
+.badge--indoor {
+  background-color: var(--green-light);
+  color: var(--text-dark);
+}
+
+/* ========================
+   КАРТА ПОСИЛАНЬ (image map)
+   ======================== */
+.imgmap-wrap {
+  position: relative;
+  margin: 40px 0;
+  text-align: center;
+}
+
+.imgmap-wrap img {
+  border-radius: var(--radius-sm);
+  box-shadow: var(--shadow);
+  display: inline-block;
+}
+
+/* ========================
+   FOOTER
+   ======================== */
+footer {
+  background-color: var(--green-dark);
+  color: var(--white);
+  padding: 32px 80px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 16px;
+}
+
+footer a {
+  color: var(--green-light);
+  font-size: 0.9rem;
+}
+
+footer a:hover {
+  color: var(--white);
+}
+
+/* ========================
+   REACT-ВІДЖЕТ ПОГОДИ (лаба 4)
+   ======================== */
+
+.weather-widget {
+  margin: 48px auto 24px;
+  max-width: 920px;
+  width: 100%;
+}
+
+.weather-widget__header {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 16px;
+  margin-bottom: 24px;
+}
+
+/* --- Вибір міста --- */
+.city-selector {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  justify-content: center;
+  width: 100%;
+  max-width: 560px;
+}
+
+.city-selector__input {
+  flex: 1 1 200px;
+  padding: 10px 16px;
+  border-radius: var(--radius);
+  border: 2px solid var(--green-light);
+  font-family: var(--font-main);
+  font-size: 0.95rem;
+  background-color: rgba(255,255,255,0.85);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  outline: none;
+  transition: border-color 0.2s;
+}
+
+.city-selector__input:focus {
+  border-color: var(--green-dark);
+  background-color: var(--white);
+}
+
+.city-selector__input:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.city-selector__btn {
+  padding: 10px 18px;
+  border-radius: var(--radius);
+  background-color: var(--green-dark);
+  color: var(--white);
+  border: none;
+  font-family: var(--font-main);
+  font-size: 0.9rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: background-color 0.18s, transform 0.15s;
+  white-space: nowrap;
+}
+
+.city-selector__btn:hover:not(:disabled) {
+  background-color: var(--text-dark);
+  transform: translateY(-2px);
+}
+
+.city-selector__btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.city-selector__btn--geo {
+  background-color: var(--green-mid);
+}
+
+.city-selector__btn--geo:hover:not(:disabled) {
+  background-color: var(--green-dark);
+}
+
+/* --- Лоадер --- */
+.weather-loader {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 14px;
+  padding: 60px 20px;
+  color: var(--text-mid);
+  font-size: 0.95rem;
+}
+
+.weather-loader__spinner {
+  width: 44px;
+  height: 44px;
+  border: 4px solid var(--green-light);
+  border-top-color: var(--green-dark);
+  border-radius: 50%;
+  animation: spin 0.9s linear infinite;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+/* --- Помилка --- */
+.weather-error {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 20px 24px;
+  background-color: #fdecec;
+  border: 1px solid #e0a0a0;
+  border-radius: var(--radius-sm);
+  margin-bottom: 16px;
+  flex-wrap: wrap;
+}
+
+.weather-error__icon {
+  font-size: 1.8rem;
+  flex-shrink: 0;
+}
+
+.weather-error__body {
+  flex: 1 1 240px;
+}
+
+.weather-error__title {
+  font-weight: 700;
+  color: #8a2a2a;
+  margin-bottom: 4px;
+}
+
+.weather-error__msg {
+  font-size: 0.88rem;
+  color: #5a2424;
+}
+
+.weather-error__retry {
+  padding: 8px 16px;
+  border-radius: var(--radius);
+  background-color: #c64a4a;
+  color: var(--white);
+  border: none;
+  font-family: var(--font-main);
+  font-weight: 700;
+  font-size: 0.85rem;
+  cursor: pointer;
+  transition: background-color 0.18s;
+}
+
+.weather-error__retry:hover {
+  background-color: #a23a3a;
+}
+
+/* --- Прогноз: метадані --- */
+.weather-forecast__meta {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 0.85rem;
+  color: var(--text-mid);
+  margin-bottom: 12px;
+  font-weight: 600;
+  letter-spacing: 0.3px;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.weather-forecast__count {
+  color: var(--green-dark);
+  background-color: var(--green-pale);
+  padding: 4px 12px;
+  border-radius: 20px;
+}
+
+/* --- Горизонтальний скрол --- */
+.weather-forecast__scroll {
+  display: flex;
+  gap: 14px;
+  overflow-x: auto;
+  scroll-behavior: smooth;
+  padding: 8px 4px 16px;
+  scrollbar-width: thin;
+  scrollbar-color: var(--green-mid) transparent;
+}
+
+.weather-forecast__scroll::-webkit-scrollbar {
+  height: 8px;
+}
+
+.weather-forecast__scroll::-webkit-scrollbar-thumb {
+  background-color: var(--green-mid);
+  border-radius: 4px;
+}
+
+.weather-forecast__scroll::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+/* --- Кнопка "ще" --- */
+.weather-forecast__more {
+  flex-shrink: 0;
+  width: 60px;
+  background-color: rgba(255,255,255,0.6);
+  border: 2px dashed var(--green-mid);
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  color: var(--green-dark);
+  font-size: 1.5rem;
+  font-weight: 700;
+  transition: background-color 0.18s, transform 0.15s;
+}
+
+.weather-forecast__more:hover {
+  background-color: var(--green-pale);
+  transform: scale(1.05);
+}
+
+.weather-forecast__hint {
+  text-align: center;
+  font-size: 0.78rem;
+  color: var(--text-light);
+  margin-top: 4px;
+  font-style: italic;
+}
+
+/* --- Слоти годин (оновлені) --- */
+.weather-forecast__scroll .weather-slot {
+  flex-shrink: 0;
+  min-width: 130px;
+  max-width: 150px;
+  padding: 14px 12px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+}
+
+.weather-slot__date {
+  font-size: 0.7rem;
+  font-weight: 700;
+  letter-spacing: 0.5px;
+  color: var(--text-light);
+  margin-bottom: 2px;
+  text-transform: uppercase;
+}
+
+.weather-slot--good .weather-slot__date {
+  color: rgba(255,255,255,0.7);
+}
+
+.weather-slot__icon {
+  display: block;
+}
+
+.weather-slot__wind,
+.weather-slot__rain {
+  font-size: 0.72rem;
+  margin-top: 2px;
+  opacity: 0.78;
+  font-weight: 500;
+}
+
+/* ========================
+   ВАЛІДАЦІЯ ФОРМ (лаба 3)
+   ======================== */
+
+/* Поле з помилкою */
+input.input--invalid,
+select.input--invalid,
+textarea.input--invalid {
+  border-color: #c64a4a !important;
+  background-color: #fdf0f0 !important;
+}
+
+/* Поле, що пройшло перевірку */
+input.input--valid,
+select.input--valid,
+textarea.input--valid {
+  border-color: var(--green-mid) !important;
+}
+
+/* Повідомлення про помилку біля поля */
+.form__error {
+  font-size: 0.78rem;
+  color: #c64a4a;
+  margin-top: 4px;
+  min-height: 0;
+  max-height: 0;
+  overflow: hidden;
+  opacity: 0;
+  transition: opacity 0.2s, max-height 0.2s;
+  font-weight: 600;
+  letter-spacing: 0.2px;
+}
+
+.form__error--visible {
+  max-height: 40px;
+  opacity: 1;
+}
+
+/* Загальне повідомлення на формі */
+.form__message {
+  padding: 12px 16px;
+  border-radius: var(--radius-sm);
+  font-size: 0.9rem;
+  font-weight: 600;
+  margin-bottom: 4px;
+  opacity: 0;
+  max-height: 0;
+  overflow: hidden;
+  transition: opacity 0.25s, max-height 0.25s, padding 0.25s;
+  padding-top: 0;
+  padding-bottom: 0;
+}
+
+.form__message--visible {
+  opacity: 1;
+  max-height: 120px;
+  padding: 12px 16px;
+}
+
+.form__message--success {
+  background-color: #e8f3e1;
+  color: #2d5016;
+  border: 1px solid var(--green-mid);
+}
+
+.form__message--error {
+  background-color: #fdecec;
+  color: #8a2a2a;
+  border: 1px solid #e0a0a0;
+}
+
+.form__message--info {
+  background-color: #f0ede1;
+  color: #5a4a1a;
+  border: 1px solid #d4c98a;
+}
+
+/* Індикатор міцності пароля */
+.strength-bar {
+  margin-top: 8px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.strength-bar__fill {
+  height: 4px;
+  background-color: #ccc;
+  border-radius: 2px;
+  width: 0%;
+  transition: width 0.25s, background-color 0.25s;
+  flex: 1;
+}
+
+.strength-bar__fill--weak   { background-color: #d96a6a; }
+.strength-bar__fill--medium { background-color: #d4a73a; }
+.strength-bar__fill--strong { background-color: var(--green-dark); }
+
+.strength-bar__label {
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.5px;
+  min-width: 70px;
+  text-align: right;
+}
+
+.strength-bar__label--weak   { color: #d96a6a; }
+.strength-bar__label--medium { color: #b88a1a; }
+.strength-bar__label--strong { color: var(--green-dark); }
+
+/* ========================
+   МЕДІА-ЗАПИТ (адаптивність)
+   ======================== */
+@media (max-width: 768px) {
+  #hero {
+    padding: 40px 32px;
+  }
+
+  .how-it-works,
+  .weather-preview {
+    padding: 48px 24px;
+  }
+
+  .steps {
+    grid-template-columns: 1fr;
+  }
+
+  .navbar {
+    padding: 12px 20px;
+  }
+
+  footer {
+    padding: 24px 24px;
+    flex-direction: column;
+    text-align: center;
+  }
+}

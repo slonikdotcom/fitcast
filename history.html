@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>FitCast — Історія тренувань</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Raleway:wght@300;400;600;700;800&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+
+  <!-- NOISE GRADIENT BACKGROUND -->
+  <div class="noise-bg">
+    <div class="noise-bg__wave1"></div>
+    <div class="noise-bg__wave2"></div>
+    <div class="noise-bg__noise"></div>
+  </div>
+
+  <!-- BURGER -->
+  <div class="burger" id="burgerBtn">
+    <div class="burger__line"></div>
+    <div class="burger__line"></div>
+    <div class="burger__line"></div>
+  </div>
+
+  <!-- ЛОГОТИП -->
+  <div class="dashboard-logo">FitCast</div>
+
+  <!-- SIDEBAR -->
+  <aside class="sidebar" id="sidebar">
+    <nav class="sidebar__nav">
+      <a href="index.html" class="sidebar__link">Головна</a>
+      <a href="dashboard.html" class="sidebar__link">Дашборд</a>
+      <a href="history.html" class="sidebar__link active">Історія тренувань</a>
+      <a href="add-workout.html" class="sidebar__link">Додати тренування</a>
+      <a href="profile.html" class="sidebar__link">Редагувати профіль</a>
+      <div class="sidebar__divider"></div>
+      <a href="about.html" class="sidebar__link">Про FitCast</a>
+      <a href="login.html" class="sidebar__link">Вийти з акаунту</a>
+    </nav>
+  </aside>
+
+  <!-- КОНТЕНТ -->
+  <main class="history-page">
+
+    <h1 class="history-page__title">Історія тренувань</h1>
+    <p class="history-page__subtitle">Всі ваші заняття в одному місці</p>
+
+    <!-- ФІЛЬТРИ (форма) -->
+    <form class="filters" action="#" method="GET">
+
+      <div class="filters__group">
+        <label class="filters__label" for="filter-type">Тип тренування</label>
+        <select id="filter-type" name="type">
+          <option value="">Всі</option>
+          <option value="run">Біг</option>
+          <option value="gym">Зал</option>
+          <option value="bike">Велосипед</option>
+          <option value="yoga">Йога</option>
+        </select>
+      </div>
+
+      <div class="filters__group">
+        <label class="filters__label" for="filter-from">Від</label>
+        <input type="date" id="filter-from" name="from" />
+      </div>
+
+      <div class="filters__group">
+        <label class="filters__label" for="filter-to">До</label>
+        <input type="date" id="filter-to" name="to" />
+      </div>
+
+      <div class="filters__group">
+        <label class="filters__label" for="filter-place">Місце</label>
+        <select id="filter-place" name="place">
+          <option value="">Будь-яке</option>
+          <option value="outdoor">Вулиця</option>
+          <option value="indoor">У приміщенні</option>
+        </select>
+      </div>
+
+      <div class="filters__group">
+        <label class="filters__label" for="filter-min">Мін. хвилин</label>
+        <input type="number" id="filter-min" name="min" placeholder="0" min="0" style="width: 100px;" />
+      </div>
+
+      <div class="filters__actions">
+        <button type="submit" class="form__btn" style="padding: 10px 24px; margin-top: 0;">
+          Фільтрувати
+        </button>
+        <button type="reset" class="filters__reset">Скинути</button>
+      </div>
+
+    </form>
+
+    <!-- Лічильник результатів -->
+    <div class="filters__count" id="filtersCount" aria-live="polite"></div>
+
+    <!-- СПИСОК ТРЕНУВАНЬ З АКОРДЕОНОМ -->
+    <div class="workout-empty-state" id="emptyState" hidden>
+      <div class="workout-empty-state__icon">🔍</div>
+      <div class="workout-empty-state__title">Нічого не знайдено</div>
+      <div class="workout-empty-state__msg">Жодне тренування не підходить під обрані фільтри. Спробуй змінити критерії або скинути фільтри.</div>
+    </div>
+
+    <!-- Картки рендеряться динамічно з workouts-data.js через history.js -->
+    <div class="workout-list" id="workoutList"></div>
+
+    <!-- ЗВЕДЕНА ТАБЛИЦЯ (для вимог лаби) -->
+    <h2 style="margin: 48px 0 16px; font-size:1.3rem; color: var(--text-dark);">Зведена статистика</h2>
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th>Тип</th>
+            <th>Кількість</th>
+            <th>Загальний час</th>
+            <th>Середня тривалість</th>
+            <th>Місце</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>🏃 Біг</td>
+            <td>3</td>
+            <td>135 хв</td>
+            <td>45 хв</td>
+            <td><span class="badge badge--outdoor">Вулиця</span></td>
+          </tr>
+          <tr>
+            <td>🏋️ Зал</td>
+            <td>2</td>
+            <td>135 хв</td>
+            <td>67 хв</td>
+            <td><span class="badge badge--indoor">Зал</span></td>
+          </tr>
+          <tr>
+            <td>🚴 Велосипед</td>
+            <td>1</td>
+            <td>90 хв</td>
+            <td>90 хв</td>
+            <td><span class="badge badge--outdoor">Вулиця</span></td>
+          </tr>
+          <tr>
+            <td>🧘 Йога</td>
+            <td>1</td>
+            <td>30 хв</td>
+            <td>30 хв</td>
+            <td><span class="badge badge--indoor">Зал</span></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+  </main>
+
+  <!-- Зовнішні скрипти (лаба 3) -->
+  <script src="js/validation.js" defer></script>
+  <script src="js/sidebar.js" defer></script>
+  <script src="js/photo-preview.js" defer></script>
+  <script src="js/workouts-data.js" defer></script>
+  <script src="js/history.js" defer></script>
+
+</body>
+</html>

@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>FitCast — Зручне планування тренувань</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Raleway:wght@300;400;600;700;800&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+
+  <!-- НАВІГАЦІЯ -->
+  <nav class="navbar">
+    <a href="index.html" class="navbar__logo">FITCAST</a>
+    <ul class="navbar__links">
+      <li><a href="index.html#about" class="navbar__btn" data-variant="outline">Про FitCast</a></li>
+      <li><a href="login.html" class="navbar__btn">Вхід</a></li>
+      <li><a href="register.html" class="navbar__btn">Реєстрація</a></li>
+    </ul>
+  </nav>
+
+  <!-- HERO -->
+  <section id="hero">
+    <h1 class="hero__title">FITCAST</h1>
+    <p class="hero__subtitle">Зручне планування твоїх тренувань</p>
+    <a href="register.html" class="hero__btn">Почати</a>
+  </section>
+
+  <!-- ЯК ЦЕ ПРАЦЮЄ -->
+  <section class="how-it-works" id="about">
+    <h2 class="section__title">Як це працює</h2>
+
+    <div class="steps">
+      <div class="step-card">
+        <div class="step-card__number">01</div>
+        <div class="step-card__title">Запиши тренування</div>
+        <p class="step-card__text">Додай тип, час та місце тренування. Зберігай нотатки та фото до кожного заняття.</p>
+      </div>
+      <div class="step-card">
+        <div class="step-card__number">02</div>
+        <div class="step-card__title">Перевір погоду</div>
+        <p class="step-card__text">FitCast автоматично аналізує прогноз погоди та виділяє найкращі години для вуличних тренувань.</p>
+      </div>
+      <div class="step-card">
+        <div class="step-card__number">03</div>
+        <div class="step-card__title">Тренуйся розумно</div>
+        <p class="step-card__text">Плануй заняття з урахуванням погоди та переглядай свій прогрес в історії тренувань.</p>
+      </div>
+    </div>
+
+    <!-- Маркований список -->
+    <br />
+    <h3 style="margin-bottom: 12px; color: var(--text-dark);">Можливості FitCast:</h3>
+    <ul class="features-list">
+      <li>Особистий дашборд з розкладом на день</li>
+      <li>Прогноз погоди з визначенням сприятливих годин</li>
+      <li>Історія тренувань з фільтрацією та сортуванням</li>
+      <li>Нотатки та фото до кожного заняття</li>
+      <li>Статистика прогресу</li>
+    </ul>
+  </section>
+
+  <!-- ПОГОДНИЙ БЛОК (демо) -->
+  <section class="weather-preview">
+    <h2 class="section__title">Приклад: сприятливі години для тренувань</h2>
+    <p style="color: var(--text-mid); margin-bottom: 8px;">FitCast аналізує погоду по годинах і підсвічує найкращі вікна для вуличних занять.</p>
+
+    <div class="weather-preview__inner">
+      <div class="weather-slot">
+        <div class="weather-slot__time">06:00</div>
+        <div class="weather-slot__temp">8°C</div>
+        <div class="weather-slot__desc">Прохолодно</div>
+      </div>
+      <div class="weather-slot">
+        <div class="weather-slot__time">09:00</div>
+        <div class="weather-slot__temp">12°C</div>
+        <div class="weather-slot__desc">Хмарно</div>
+      </div>
+      <div class="weather-slot weather-slot--good">
+        <div class="weather-slot__time">12:00 ✓</div>
+        <div class="weather-slot__temp">18°C</div>
+        <div class="weather-slot__desc">Ідеально!</div>
+      </div>
+      <div class="weather-slot weather-slot--good">
+        <div class="weather-slot__time">15:00 ✓</div>
+        <div class="weather-slot__temp">21°C</div>
+        <div class="weather-slot__desc">Ідеально!</div>
+      </div>
+      <div class="weather-slot weather-slot--good">
+        <div class="weather-slot__time">18:00 ✓</div>
+        <div class="weather-slot__temp">17°C</div>
+        <div class="weather-slot__desc">Чудово</div>
+      </div>
+      <div class="weather-slot">
+        <div class="weather-slot__time">21:00</div>
+        <div class="weather-slot__temp">11°C</div>
+        <div class="weather-slot__desc">Вітряно</div>
+      </div>
+    </div>
+
+    <!-- Нумерований список -->
+    <br />
+    <h3 style="margin-bottom: 12px; color: var(--text-dark);">Критерії сприятливих умов:</h3>
+    <ol class="steps-list">
+      <li>Температура від +10°C до +28°C</li>
+      <li>Відсутність опадів (дощ, сніг)</li>
+      <li>Швидкість вітру не більше 10 м/с</li>
+    </ol>
+
+    <!-- Зображення з картою посилань -->
+    <div class="imgmap-wrap" style="margin-top: 48px;">
+      <img
+        src="https://images.unsplash.com/photo-1476480862126-209bfaa8edc8?w=800&h=300&fit=crop"
+        alt="Тренування на вулиці"
+        width="800"
+        height="300"
+        usemap="#workout-map"
+        style="border-radius: 16px;"
+      />
+      <map name="workout-map">
+        <area shape="rect" coords="0,0,266,300" href="register.html" alt="Біг" title="Розпочати біг" />
+        <area shape="rect" coords="267,0,533,300" href="register.html" alt="Велосипед" title="Велотренування" />
+        <area shape="rect" coords="534,0,800,300" href="register.html" alt="Йога" title="Йога на вулиці" />
+      </map>
+    </div>
+  </section>
+
+  <!-- FOOTER -->
+  <footer>
+    <span>© 2025 FitCast</span>
+    <nav>
+      <a href="index.html">Головна</a> &nbsp;|&nbsp;
+      <a href="login.html">Вхід</a> &nbsp;|&nbsp;
+      <a href="register.html">Реєстрація</a>
+    </nav>
+  </footer>
+
+</body>
+</html>

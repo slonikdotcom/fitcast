@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>FitCast — Реєстрація</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Raleway:wght@300;400;600;700;800&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+
+  <!-- NOISE GRADIENT BACKGROUND -->
+  <div class="noise-bg">
+    <div class="noise-bg__wave1"></div>
+    <div class="noise-bg__wave2"></div>
+    <div class="noise-bg__noise"></div>
+  </div>
+
+  <div class="auth-page">
+    <div class="auth-card">
+
+      <div class="auth-card__logo">FITCAST</div>
+      <div class="auth-card__title">Створіть свій акаунт</div>
+
+      <form class="form" action="#" method="POST">
+
+        <!-- input type="text" -->
+        <div class="form__group">
+          <label class="form__label" for="name">Ім'я</label>
+          <input type="text" id="name" name="name" placeholder="Ваше ім'я" required />
+        </div>
+
+        <!-- input type="email" -->
+        <div class="form__group">
+          <label class="form__label" for="email">Email</label>
+          <input type="email" id="email" name="email" placeholder="example@mail.com" required />
+        </div>
+
+        <!-- select -->
+        <div class="form__group">
+          <label class="form__label" for="city">Місто (для прогнозу погоди)</label>
+          <select id="city" name="city">
+            <option value="">Оберіть місто</option>
+            <option value="Kyiv">Київ</option>
+            <option value="Lviv">Львів</option>
+            <option value="Kharkiv">Харків</option>
+            <option value="Odessa">Одеса</option>
+            <option value="Dnipro">Дніпро</option>
+          </select>
+        </div>
+
+        <!-- input type="password" -->
+        <div class="form__group">
+          <label class="form__label" for="password">Пароль</label>
+          <input type="password" id="password" name="password" placeholder="Мінімум 8 символів" required />
+        </div>
+
+        <!-- input type="password" (підтвердження) -->
+        <div class="form__group">
+          <label class="form__label" for="password2">Підтвердження пароля</label>
+          <input type="password" id="password2" name="password2" placeholder="Повторіть пароль" required />
+        </div>
+
+        <!-- textarea -->
+        <div class="form__group">
+          <label class="form__label" for="about">Про себе (необов'язково)</label>
+          <textarea id="about" name="about" placeholder="Розкажіть трохи про свої цілі..."></textarea>
+        </div>
+
+        <button type="submit" class="form__btn">Зареєструватись</button>
+
+      </form>
+
+      <p class="form__switch">
+        Вже маєте акаунт? <a href="login.html">Увійти</a>
+      </p>
+
+    </div>
+  </div>
+
+  <!-- Зовнішні скрипти (лаба 3) -->
+  <script src="js/validation.js" defer></script>
+  <script src="js/auth.js" defer></script>
+
+</body>
+</html>
